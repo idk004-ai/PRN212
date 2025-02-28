@@ -1,4 +1,5 @@
-﻿using QuanLiKhiThai.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using QuanLiKhiThai.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,10 @@ namespace QuanLiKhiThai.DAO
         {
             using (var db = new QuanLiKhiThaiContext())
             {
-                return db.Vehicles.Where(v => v.OwnerId == ownerId).ToList();
+                return db.Vehicles
+                    .Where(v => v.OwnerId == ownerId)
+                    .Include(v => v.InspectionRecords)
+                    .ToList();
             }
         }
 

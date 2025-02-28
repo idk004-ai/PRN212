@@ -20,5 +20,13 @@ namespace QuanLiKhiThai.DAO
                 return db.SaveChanges() > 0;
             }
         }
+
+        internal static User? GetUserByEmail(string email)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Users.FirstOrDefault(u => u.Email == email);
+            }
+        }
     }
 }

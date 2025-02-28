@@ -2,6 +2,7 @@
 using QuanLiKhiThai.DAO;
 using QuanLiKhiThai.Models;
 using System.Windows;
+using System.Windows.Input;
 
 namespace QuanLiKhiThai
 {
@@ -10,10 +11,13 @@ namespace QuanLiKhiThai
     /// </summary>
     public partial class MainWindow : Window
     {
+        // create a tuple to store the user's information
+        private (string FullName, string Email, string Password, string ConfirmPassword, string Phone, string Address) userInfo;
+
+
         void LoadDataGridUser()
         {
             List<User> users = UserDAO.GetUsers();
-            //this.dataGridUser.ItemsSource = users;
         }
 
         public MainWindow()
@@ -21,34 +25,52 @@ namespace QuanLiKhiThai
             InitializeComponent();
         }
 
+        private bool HasAnyEmptyField()
+        {
+            return string.IsNullOrEmpty(userInfo.FullName) ||
+                string.IsNullOrEmpty(userInfo.Email) ||
+                string.IsNullOrEmpty(userInfo.Password) ||
+                string.IsNullOrEmpty(userInfo.ConfirmPassword) ||
+                string.IsNullOrEmpty(userInfo.Phone) ||
+                string.IsNullOrEmpty(userInfo.Address);
+        }
+
         private void RegisterButton_Click(object sender, RoutedEventArgs e)
         {
-            string fullName = this.txtFullName.Text;
-            string email = this.txtEmail.Text;
-            string password = this.txtPassword.Password;
-            string confirmPassword = this.txtConfirmPassword.Password;
-            string phoneNumber = this.txtPhone.Text;
-            string address = this.txtAddress.Text;
+            userInfo = (
+                FullName: this.txtFullName.Text,
+                Email: this.txtEmail.Text,
+                Password: this.txtPassword.Password,
+                ConfirmPassword: this.txtConfirmPassword.Password,
+                Phone: this.txtPhone.Text,
+                Address: this.txtAddress.Text
+            );
 
-            if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword) || string.IsNullOrEmpty(phoneNumber) || string.IsNullOrEmpty(address))
+            if (HasAnyEmptyField())
             {
                 MessageBox.Show("Please fill in all fields", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            if (!password.Equals(confirmPassword))
+            if (!userInfo.Password.Equals(userInfo.ConfirmPassword))
             {
                 MessageBox.Show("Password and Confirm Password do not match", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
+            if (UserDAO.GetUserByEmail(userInfo.Email) != null)
+            {
+                MessageBox.Show("Email already exists", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             User user = new User
             {
-                FullName = fullName,
-                Email = email,
-                Password = password,
-                Phone = phoneNumber,
-                Address = address,
+                FullName = userInfo.FullName,
+                Email = userInfo.Email,
+                Password = userInfo.Password,
+                Phone = userInfo.ConfirmPassword,
+                Address = userInfo.Address,
                 Role = Constants.Owner
             };
 
@@ -71,6 +93,13 @@ namespace QuanLiKhiThai
             {
                 MessageBox.Show("Register failed", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void LoginTextBlock_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Login loginWindow = new Login();
+            loginWindow.Show();
+            this.Close();
         }
     }
 }

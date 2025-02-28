@@ -49,6 +49,8 @@ namespace QuanLiKhiThai
             if (VehicleDAO.AddVehicle(vehicle))
             {
                 MessageBox.Show("Vehicle registered successfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                VehicleInfo vehicleInfo = new VehicleInfo();
+                vehicleInfo.Show();
                 this.Close();
             }
             else

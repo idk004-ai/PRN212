@@ -34,6 +34,10 @@
                 <TextBox Width="200" VerticalAlignment="Center" Name="txtAddress"/>
             </StackPanel>
             <Button Content="Register" Width="100" HorizontalAlignment="Center" Margin="0,20,0,0" Click="RegisterButton_Click"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                <TextBlock Text="Already have an account ?" />
+                <TextBlock Text="Login" Foreground="Blue" TextDecorations="Underline" HorizontalAlignment="Center" MouseLeftButtonUp="LoginTextBlock_MouseLeftButtonUp"/>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Window>

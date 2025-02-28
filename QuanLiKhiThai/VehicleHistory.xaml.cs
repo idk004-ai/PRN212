@@ -21,10 +21,10 @@ namespace QuanLiKhiThai
     /// <summary>
     /// Interaction logic for VehicleInfo.xaml
     /// </summary>
-    public partial class VehicleInfo : Window
+    public partial class VehicleHistory : Window
     {
 
-        public VehicleInfo()
+        public VehicleHistory()
         {
             InitializeComponent();
             LoadVehicleInfo();
@@ -61,6 +61,14 @@ namespace QuanLiKhiThai
         private void ScheduleInspectionButton_Click(object sender, RoutedEventArgs e)
         {
             // Xử lý logic lên lịch kiểm định
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Chuyển hướng về trang Home
+            Home home = new Home();
+            home.Show();
+            this.Close();
         }
     }
 }

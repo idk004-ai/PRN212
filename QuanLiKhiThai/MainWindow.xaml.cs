@@ -84,9 +84,9 @@ namespace QuanLiKhiThai
                 UserContext.Current.Email = user.Email;
                 UserContext.Current.Role = user.Role;
 
-                // Open register vehicle window
-                RegisterVehicle registerVehicle = new RegisterVehicle();
-                registerVehicle.Show();
+                // Redirect to login window
+                Login loginWindow = new Login();
+                loginWindow.Show();
                 this.Close();
             }
             else

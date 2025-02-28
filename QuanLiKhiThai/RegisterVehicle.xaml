@@ -25,7 +25,10 @@
                 <TextBlock Text="Engine Number" Width="100" VerticalAlignment="Center"/>
                 <TextBox Width="200" VerticalAlignment="Center" Name="txtEngineNumber"/>
             </StackPanel>
-            <Button Content="Register" Width="100" HorizontalAlignment="Center" Margin="0,20,0,0" Click="RegisterVehicleButton_Click"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="Register" Width="100" Margin="0,10,0,0" Click="RegisterVehicleButton_Click"/>
+                <Button Content="Back" Width="100" Margin="10,10,0,0" Click="BackButton_Click"/>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Window>

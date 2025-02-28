@@ -1,0 +1,18 @@
+﻿<Window x:Class="QuanLiKhiThai.Home"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:QuanLiKhiThai"
+        mc:Ignorable="d"
+        Title="Home" Height="450" Width="800">
+    <Grid Background="Beige">
+        <StackPanel Margin="20">
+            <TextBlock Text="Home" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+            <Button Content="History Test Result" Width="200" Height="50" Margin="0,10,0,0" Click="HistoryTestResultButton_Click"/>
+            <Button Content="Register Vehicle" Width="200" Height="50" Margin="0,10,0,0" Click="RegisterVehicleButton_Click"/>
+            <Button Content="Schedule a Test" Width="200" Height="50" Margin="0,10,0,0" Click="ScheduleTestButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
+

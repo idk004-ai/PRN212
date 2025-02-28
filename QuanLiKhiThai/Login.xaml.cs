@@ -47,10 +47,24 @@ namespace QuanLiKhiThai
             UserContext.Current.Email = user.Email;
             UserContext.Current.Role = user.Role;
 
+
+            // redirect base on the user's role
+            switch (user.Role)
+            {
+                case Constants.Owner:
+                    Home home = new Home();
+                    home.Show();
+                    this.Close();
+                    break;
+                case Constants.Station:
+
+                    break;
+            }
+
             // redirect to VehicleInfo window
-            VehicleInfo vehicleInfo = new VehicleInfo();
-            vehicleInfo.Show();
-            this.Close();
+            //VehicleInfo vehicleInfo = new VehicleInfo();
+            //vehicleInfo.Show();
+            //this.Close();
         }
 
         private void RegisterTextBlock_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)

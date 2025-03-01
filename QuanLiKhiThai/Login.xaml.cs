@@ -57,14 +57,11 @@ namespace QuanLiKhiThai
                     this.Close();
                     break;
                 case Constants.Station:
-
+                    NeededCheckVehicleList neededCheckVehicleList = new NeededCheckVehicleList();
+                    neededCheckVehicleList.Show();
+                    this.Close();
                     break;
             }
-
-            // redirect to VehicleInfo window
-            //VehicleInfo vehicleInfo = new VehicleInfo();
-            //vehicleInfo.Show();
-            //this.Close();
         }
 
         private void RegisterTextBlock_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)

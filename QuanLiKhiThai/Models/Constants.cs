@@ -12,5 +12,9 @@ namespace QuanLiKhiThai.Models
         public const string Inspector = "Inspector";
         public const string Station = "Station";
         public const string Police = "Police";
+
+        public static string RESULT_TESTING = "Testing";
+        public static string RESULT_PASSED = "Pass";
+        public static string RESULT_FAILED = "Fail";
     }
 }

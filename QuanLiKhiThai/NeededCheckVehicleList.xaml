@@ -5,8 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QuanLiKhiThai"
         mc:Ignorable="d"
-        Title="NeededCheckVehicleList" Height="450" Width="800">
-    <Grid>
-        
+        Title="Needed Check Vehicle List" Height="450" Width="1011">
+    <Grid Background="Beige">
+        <StackPanel Margin="20">
+            <TextBlock Text="Needed Check Vehicle List" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
+            <DataGrid Name="dataGridVehicle" AutoGenerateColumns="False" Height="300" CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Plate Number" Binding="{Binding PlateNumber}" Width="*"/>
+                    <DataGridTextColumn Header="Brand" Binding="{Binding Brand}" Width="*"/>
+                    <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="*"/>
+                    <DataGridTextColumn Header="Manufacture Year" Binding="{Binding ManufactureYear}" Width="*"/>
+                    <DataGridTextColumn Header="Engine Number" Binding="{Binding EngineNumber}" Width="*"/>
+                    <DataGridTextColumn Header="Last Inspection Date" Binding="{Binding LastInspectionDate}" Width="*"/>
+                    <DataGridTextColumn Header="Last Inspection Result" Binding="{Binding LastInspectionResult}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
     </Grid>
 </Window>
+

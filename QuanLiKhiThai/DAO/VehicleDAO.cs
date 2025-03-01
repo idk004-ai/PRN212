@@ -29,5 +29,16 @@ namespace QuanLiKhiThai.DAO
                 return db.SaveChanges() > 0;
             }
         }
+
+        public static List<Vehicle> GetVehicleNeedingInspection(int stationId)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Vehicles
+                    .Include(v => v.InspectionRecords)
+                    .Where(v => v.InspectionRecords.Any(ir => ir.StationId == stationId && ir.Result == Constants.RESULT_TESTING))
+                    .ToList();
+            }
+        }
     }
 }

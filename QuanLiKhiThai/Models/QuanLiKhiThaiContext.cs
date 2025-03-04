@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace QuanLiKhiThai.Models;
-
 public partial class QuanLiKhiThaiContext : DbContext
 {
     public QuanLiKhiThaiContext()
@@ -15,9 +13,9 @@ public partial class QuanLiKhiThaiContext : DbContext
     {
     }
 
-    public virtual DbSet<InspectionRecord> InspectionRecords { get; set; }
+    public virtual DbSet<InspectionAppointment> InspectionAppointments { get; set; }
 
-    public virtual DbSet<InspectionStation> InspectionStations { get; set; }
+    public virtual DbSet<InspectionRecord> InspectionRecords { get; set; }
 
     public virtual DbSet<Log> Logs { get; set; }
 
@@ -33,11 +31,38 @@ public partial class QuanLiKhiThaiContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<InspectionAppointment>(entity =>
+        {
+            entity.HasKey(e => e.AppointmentId).HasName("PK__Inspecti__8ECDFCA2CB8A1FAA");
+
+            entity.Property(e => e.AppointmentId).HasColumnName("AppointmentID");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ScheduledDateTime).HasColumnType("datetime");
+            entity.Property(e => e.StationId).HasColumnName("StationID");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("Pending");
+            entity.Property(e => e.VehicleId).HasColumnName("VehicleID");
+
+            entity.HasOne(d => d.Station).WithMany(p => p.InspectionAppointments)
+                .HasForeignKey(d => d.StationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Appointments_Stations");
+
+            entity.HasOne(d => d.Vehicle).WithMany(p => p.InspectionAppointments)
+                .HasForeignKey(d => d.VehicleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Appointments_Vehicles");
+        });
+
         modelBuilder.Entity<InspectionRecord>(entity =>
         {
-            entity.HasKey(e => e.RecordId).HasName("PK__Inspecti__FBDF78C9699767F4");
+            entity.HasKey(e => e.RecordId).HasName("PK__Inspecti__FBDF78C9BB6494A2");
 
             entity.Property(e => e.RecordId).HasColumnName("RecordID");
+            entity.Property(e => e.AppointmentId).HasColumnName("AppointmentID");
             entity.Property(e => e.Co2emission)
                 .HasColumnType("decimal(5, 2)")
                 .HasColumnName("CO2Emission");
@@ -52,12 +77,17 @@ public partial class QuanLiKhiThaiContext : DbContext
             entity.Property(e => e.StationId).HasColumnName("StationID");
             entity.Property(e => e.VehicleId).HasColumnName("VehicleID");
 
-            entity.HasOne(d => d.Inspector).WithMany(p => p.InspectionRecords)
+            entity.HasOne(d => d.Appointment).WithMany(p => p.InspectionRecords)
+                .HasForeignKey(d => d.AppointmentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_InspectionRecords_Appointments");
+
+            entity.HasOne(d => d.Inspector).WithMany(p => p.InspectionRecordInspectors)
                 .HasForeignKey(d => d.InspectorId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_InspectionRecords_Users");
 
-            entity.HasOne(d => d.Station).WithMany(p => p.InspectionRecords)
+            entity.HasOne(d => d.Station).WithMany(p => p.InspectionRecordStations)
                 .HasForeignKey(d => d.StationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_InspectionRecords_Stations");
@@ -68,21 +98,9 @@ public partial class QuanLiKhiThaiContext : DbContext
                 .HasConstraintName("FK_InspectionRecords_Vehicles");
         });
 
-        modelBuilder.Entity<InspectionStation>(entity =>
-        {
-            entity.HasKey(e => e.StationId).HasName("PK__Inspecti__E0D8A6DD273B2F2F");
-
-            entity.HasIndex(e => e.Email, "UQ__Inspecti__A9D10534CF5AD928").IsUnique();
-
-            entity.Property(e => e.StationId).HasColumnName("StationID");
-            entity.Property(e => e.Email).HasMaxLength(100);
-            entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.Phone).HasMaxLength(15);
-        });
-
         modelBuilder.Entity<Log>(entity =>
         {
-            entity.HasKey(e => e.LogId).HasName("PK__Logs__5E5499A8D777B75D");
+            entity.HasKey(e => e.LogId).HasName("PK__Logs__5E5499A880D7BA0C");
 
             entity.Property(e => e.LogId).HasColumnName("LogID");
             entity.Property(e => e.Action).HasMaxLength(100);
@@ -99,7 +117,7 @@ public partial class QuanLiKhiThaiContext : DbContext
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__20CF2E3249C43533");
+            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__20CF2E32C06CDE9D");
 
             entity.Property(e => e.NotificationId).HasColumnName("NotificationID");
             entity.Property(e => e.IsRead).HasDefaultValue(false);
@@ -116,9 +134,9 @@ public partial class QuanLiKhiThaiContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCACEF7C80DD");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC65522A33");
 
-            entity.HasIndex(e => e.Email, "UQ__Users__A9D105342E91A5D0").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__A9D105349162C7B0").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.Email).HasMaxLength(100);
@@ -130,9 +148,9 @@ public partial class QuanLiKhiThaiContext : DbContext
 
         modelBuilder.Entity<Vehicle>(entity =>
         {
-            entity.HasKey(e => e.VehicleId).HasName("PK__Vehicles__476B54B23706820D");
+            entity.HasKey(e => e.VehicleId).HasName("PK__Vehicles__476B54B2EB00E3D7");
 
-            entity.HasIndex(e => e.PlateNumber, "UQ__Vehicles__03692624A5A2EE5D").IsUnique();
+            entity.HasIndex(e => e.PlateNumber, "UQ__Vehicles__036926248D9F8A42").IsUnique();
 
             entity.Property(e => e.VehicleId).HasColumnName("VehicleID");
             entity.Property(e => e.Brand).HasMaxLength(50);

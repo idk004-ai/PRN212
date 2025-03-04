@@ -6,30 +6,22 @@ using System.Threading.Tasks;
 
 namespace QuanLiKhiThai.ViewModel
 {
-    internal class VehicleCheckViewModel
+    public class VehicleCheckViewModel
     {
         public string PlateNumber { get; set; }
-        public string Brand { get; set; }
-        public string Model { get; set; }
-        public int ManufactureYear { get; set; }
-        public string EngineNumber { get; set; }
+        public string EmailOwner { get; set; }
         public DateTime? LastInspectionDate { get; set; }
-        public string LastInspectionResult { get; set; }
 
         public VehicleCheckViewModel()
         {
             
         }
 
-        public VehicleCheckViewModel(string plateNumber, string brand, string model, int manufactureYear, string engineNumber, DateTime? lastInspectionDate, string lastInspectionResult)
+        public VehicleCheckViewModel(string plateNumber, string emailOwner, DateTime? lastInspectionDate)
         {
             PlateNumber = plateNumber;
-            Brand = brand;
-            Model = model;
-            ManufactureYear = manufactureYear;
-            EngineNumber = engineNumber;
+            EmailOwner = emailOwner;
             LastInspectionDate = lastInspectionDate;
-            LastInspectionResult = lastInspectionResult;
         }
     }
 }

@@ -12,12 +12,16 @@
             <DataGrid Name="dataGridVehicle" AutoGenerateColumns="False" Height="300" CanUserAddRows="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Plate Number" Binding="{Binding PlateNumber}" Width="*"/>
-                    <DataGridTextColumn Header="Brand" Binding="{Binding Brand}" Width="*"/>
-                    <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="*"/>
-                    <DataGridTextColumn Header="Manufacture Year" Binding="{Binding ManufactureYear}" Width="*"/>
-                    <DataGridTextColumn Header="Engine Number" Binding="{Binding EngineNumber}" Width="*"/>
+                    <DataGridTextColumn Header="Owner Email" Binding="{Binding EmailOwner}" Width="*"/>
                     <DataGridTextColumn Header="Last Inspection Date" Binding="{Binding LastInspectionDate}" Width="*"/>
-                    <DataGridTextColumn Header="Last Inspection Result" Binding="{Binding LastInspectionResult}" Width="*"/>
+                    <DataGridTemplateColumn Header="Actions" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="View" Click="ViewButton_Click" CommandParameter="{Binding}" Margin="5"/>
+                                <!--<Button Content="Assign" Click="AssignButton_Click" CommandParameter="{Binding}" Margin="5"/>-->
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </StackPanel>

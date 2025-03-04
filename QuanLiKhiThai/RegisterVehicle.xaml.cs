@@ -49,7 +49,6 @@ namespace QuanLiKhiThai
             if (VehicleDAO.AddVehicle(vehicle))
             {
                 MessageBox.Show("Vehicle registered successfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                this.Close();
             }
             else
             {
@@ -59,8 +58,6 @@ namespace QuanLiKhiThai
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            Home home = new Home();
-            home.Show();
             this.Close();
         }
     }

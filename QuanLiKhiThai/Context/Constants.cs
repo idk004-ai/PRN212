@@ -16,5 +16,10 @@ namespace QuanLiKhiThai.Models
         public static string RESULT_TESTING = "Testing";
         public static string RESULT_PASSED = "Pass";
         public static string RESULT_FAILED = "Fail";
+
+        public static string STATUS_PENDING = "Pending";
+        public static string STATUS_CONFIRMED = "Confirmed";
+        public static string STATUS_COMPLETED = "Completed";
+        public static string STATUS_CANCELLED = "Cancelled";
     }
 }

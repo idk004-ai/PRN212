@@ -12,6 +12,14 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
+        public static User? GetUserById(int userId)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Users.Find(userId);
+            }
+        }
+
         internal static bool AddUser(User user)
         {
             using (var db = new QuanLiKhiThaiContext())
@@ -26,6 +34,14 @@ namespace QuanLiKhiThai.DAO
             using (var db = new QuanLiKhiThaiContext())
             {
                 return db.Users.FirstOrDefault(u => u.Email == email);
+            }
+        }
+
+        internal static List<User> GetUserByRole(string role)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Users.Where(u => u.Role == role).ToList();
             }
         }
     }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace QuanLiKhiThai.Models;
 
 public partial class Vehicle
 {
@@ -18,6 +17,8 @@ public partial class Vehicle
     public int ManufactureYear { get; set; }
 
     public string EngineNumber { get; set; } = null!;
+
+    public virtual ICollection<InspectionAppointment> InspectionAppointments { get; set; } = new List<InspectionAppointment>();
 
     public virtual ICollection<InspectionRecord> InspectionRecords { get; set; } = new List<InspectionRecord>();
 

@@ -65,9 +65,6 @@ namespace QuanLiKhiThai
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            // Chuyển hướng về trang Home
-            Home home = new Home();
-            home.Show();
             this.Close();
         }
     }

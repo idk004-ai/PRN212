@@ -39,20 +39,39 @@ namespace QuanLiKhiThai
             foreach (Vehicle vehicle in vehicles)
             {
                 var lastInspection = vehicle.InspectionRecords.OrderByDescending(ir => ir.InspectionDate).FirstOrDefault();
+                var owner = vehicle.Owner;
                 vehicleCheckList.Add(new VehicleCheckViewModel
                 {
                     PlateNumber = vehicle.PlateNumber,
-                    Brand = vehicle.Brand,
-                    Model = vehicle.Model,
-                    ManufactureYear = vehicle.ManufactureYear,
-                    EngineNumber = vehicle.EngineNumber,
-                    LastInspectionDate = lastInspection?.InspectionDate,
-                    LastInspectionResult = lastInspection?.Result
+                    EmailOwner = owner.Email,
+                    LastInspectionDate = lastInspection?.InspectionDate
                 });
             }
 
             // Bind data to DataGrid
             this.dataGridVehicle.ItemsSource = vehicleCheckList;
+        }
+
+        private void ViewButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var vehicleViewModel = button?.CommandParameter as VehicleCheckViewModel;
+
+            if (vehicleViewModel != null)
+            {
+                VehicleDetailWindow vehicleDetailWindow = new VehicleDetailWindow(vehicleViewModel);
+                vehicleDetailWindow.Show();
+            }
+        }
+
+        private void AssignButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var vehicleViewModel = button?.CommandParameter as VehicleCheckViewModel;
+            if (vehicleViewModel != null)
+            {
+                AssignInspectorWindow assignInspectorWindow = new AssignInspectorWindow(vehicleViewModel);
+            }
         }
     }
 }

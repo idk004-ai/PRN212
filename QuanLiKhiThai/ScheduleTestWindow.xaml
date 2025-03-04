@@ -1,0 +1,46 @@
+﻿<Window x:Class="QuanLiKhiThai.ScheduleTestWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:QuanLiKhiThai"
+        mc:Ignorable="d"
+        Title="Schedule Test" Height="450" Width="600">
+    <Grid Background="Beige">
+        <StackPanel Margin="20">
+            <TextBlock Text="Schedule Emission Test" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+
+            <!-- Vehicle selection -->
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
+                <TextBlock Text="Select Vehicle:" Width="120" VerticalAlignment="Center"/>
+                <ComboBox Name="cbVehicles" Width="300" DisplayMemberPath="PlateNumber" SelectedValuePath="VehicleId"/>
+            </StackPanel>
+
+            <!-- Station selection -->
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
+                <TextBlock Text="Select Station:" Width="120" VerticalAlignment="Center"/>
+                <ComboBox Name="cbStations" Width="300" DisplayMemberPath="Name" SelectedValuePath="StationId"/>
+            </StackPanel>
+
+            <!-- Date selection -->
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
+                <TextBlock Text="Select Date:" Width="120" VerticalAlignment="Center"/>
+                <DatePicker Name="dpScheduleDate" Width="300"/>
+            </StackPanel>
+
+            <!-- Additional Information Section -->
+            <GroupBox Header="Additional Information" Margin="0,10,0,10">
+                <StackPanel Margin="5">
+                    <TextBlock Text="Comments:" Margin="0,5,0,5"/>
+                    <TextBox Name="txtComments" Height="60" TextWrapping="Wrap"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Buttons -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                <Button Content="Schedule Test" Width="120" Height="30" Click="ScheduleButton_Click" Margin="0,0,10,0"/>
+                <Button Content="Cancel" Width="120" Height="30" Click="CancelButton_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

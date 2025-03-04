@@ -21,19 +21,24 @@ CREATE TABLE Vehicles (
     CONSTRAINT FK_Vehicles_Users FOREIGN KEY (OwnerID) REFERENCES Users(UserID)
 );
 
---CREATE TABLE InspectionStations (
---    StationID INT PRIMARY KEY IDENTITY(1,1),
---    Name NVARCHAR(100) NOT NULL,
---    Address NVARCHAR(MAX) NOT NULL,
---    Phone NVARCHAR(15) NOT NULL,
---    Email NVARCHAR(100) NOT NULL UNIQUE
---);
+CREATE TABLE InspectionAppointments (
+	AppointmentID INT PRIMARY KEY IDENTITY(1,1),
+	VehicleID INT NOT NULL,
+	StationID INT NOT NULL,
+	ScheduledDateTime DATETIME NOT NULL,
+	Status NVARCHAR(20) DEFAULT 'Pending' NOT NULL,
+	CreatedAt DATETIME DEFAULT GETDATE(),
+	CONSTRAINT CHK_AppointmentStatus CHECK (Status IN ('Pending', 'Confirmed', 'Completed', 'Cancelled')),
+    CONSTRAINT FK_Appointments_Vehicles FOREIGN KEY (VehicleID) REFERENCES Vehicles(VehicleID),
+    CONSTRAINT FK_Appointments_Stations FOREIGN KEY (StationID) REFERENCES Users(UserID)
+)
 
 CREATE TABLE InspectionRecords (
     RecordID INT PRIMARY KEY IDENTITY(1,1),
     VehicleID INT NOT NULL,
     StationID INT NOT NULL,
     InspectorID INT NOT NULL,
+	AppointmentID INT NOT NULL, 
     InspectionDate DATETIME DEFAULT GETDATE(),
     Result NVARCHAR(10) NOT NULL,
     CO2Emission DECIMAL(5,2) NOT NULL,
@@ -42,7 +47,8 @@ CREATE TABLE InspectionRecords (
     CONSTRAINT CHK_InspectionResult CHECK (Result IN ('Pass', 'Fail', 'Testing')),
     CONSTRAINT FK_InspectionRecords_Vehicles FOREIGN KEY (VehicleID) REFERENCES Vehicles(VehicleID),
     CONSTRAINT FK_InspectionRecords_Stations FOREIGN KEY (StationID) REFERENCES Users(UserID),
-    CONSTRAINT FK_InspectionRecords_Users FOREIGN KEY (InspectorID) REFERENCES Users(UserID)
+    CONSTRAINT FK_InspectionRecords_Users FOREIGN KEY (InspectorID) REFERENCES Users(UserID),
+	CONSTRAINT FK_InspectionRecords_Appointments FOREIGN KEY (AppointmentID) REFERENCES InspectionAppointments(AppointmentID)
 );
 
 GO
@@ -51,6 +57,7 @@ CREATE PROCEDURE sp_AddInspectionRecord
 	@VehicleID INT,
 	@StationID INT,
 	@InspectorID INT,
+	@AppointmentID INT,
 	@InspectionDate DATETIME,
 	@Result NVARCHAR(10),
 	@CO2Emission DECIMAL(5,2),
@@ -72,8 +79,8 @@ BEGIN
         RETURN;
     END
 
-	INSERT INTO InspectionRecords (VehicleID, StationID, InspectorID, InspectionDate, Result, CO2Emission, HCEmission, Comments)
-	VALUES (@VehicleID, @StationID, @InspectorID, @InspectionDate, @Result, @CO2Emission, @HCEmission, @Comments);
+	INSERT INTO InspectionRecords (VehicleID, StationID, InspectorID, AppointmentID, InspectionDate, Result, CO2Emission, HCEmission, Comments)
+	VALUES (@VehicleID, @StationID, @InspectorID, @AppointmentID, @InspectionDate, @Result, @CO2Emission, @HCEmission, @Comments);
 END
 
 GO

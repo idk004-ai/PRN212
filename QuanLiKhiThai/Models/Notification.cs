@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace QuanLiKhiThai.Models;
-
 public partial class Notification
 {
     public int NotificationId { get; set; }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace QuanLiKhiThai.Models;
 
 public partial class User
 {
@@ -19,7 +18,11 @@ public partial class User
 
     public string Address { get; set; } = null!;
 
-    public virtual ICollection<InspectionRecord> InspectionRecords { get; set; } = new List<InspectionRecord>();
+    public virtual ICollection<InspectionAppointment> InspectionAppointments { get; set; } = new List<InspectionAppointment>();
+
+    public virtual ICollection<InspectionRecord> InspectionRecordInspectors { get; set; } = new List<InspectionRecord>();
+
+    public virtual ICollection<InspectionRecord> InspectionRecordStations { get; set; } = new List<InspectionRecord>();
 
     public virtual ICollection<Log> Logs { get; set; } = new List<Log>();
 

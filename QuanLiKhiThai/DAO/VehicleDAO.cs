@@ -16,6 +16,7 @@ namespace QuanLiKhiThai.DAO
             {
                 return db.Vehicles
                     .Where(v => v.OwnerId == ownerId)
+                    .Include(v => v.Owner)
                     .Include(v => v.InspectionRecords)
                     .ToList();
             }
@@ -36,8 +37,20 @@ namespace QuanLiKhiThai.DAO
             {
                 return db.Vehicles
                     .Include(v => v.InspectionRecords)
+                    .Include(v => v.Owner)
                     .Where(v => v.InspectionRecords.Any(ir => ir.StationId == stationId && ir.Result == Constants.RESULT_TESTING))
                     .ToList();
+            }
+        }
+
+        public static Vehicle? GetVehicleByPlateNumber(string plateNumber)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Vehicles
+                    .Include(v => v.Owner)
+                    .Include(v => v.InspectionRecords)
+                    .FirstOrDefault(v => v.PlateNumber == plateNumber);
             }
         }
     }

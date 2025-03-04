@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace QuanLiKhiThai.Models;
-
 public partial class InspectionRecord
 {
     public int RecordId { get; set; }
@@ -12,6 +10,8 @@ public partial class InspectionRecord
     public int StationId { get; set; }
 
     public int InspectorId { get; set; }
+
+    public int AppointmentId { get; set; }
 
     public DateTime? InspectionDate { get; set; }
 
@@ -23,9 +23,11 @@ public partial class InspectionRecord
 
     public string? Comments { get; set; }
 
+    public virtual InspectionAppointment Appointment { get; set; } = null!;
+
     public virtual User Inspector { get; set; } = null!;
 
-    public virtual InspectionStation Station { get; set; } = null!;
+    public virtual User Station { get; set; } = null!;
 
     public virtual Vehicle Vehicle { get; set; } = null!;
 }

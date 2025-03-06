@@ -1,4 +1,6 @@
-﻿using QuanLiKhiThai.Models;
+﻿
+using QuanLiKhiThai.Context;
+using System.Windows;
 
 namespace QuanLiKhiThai.DAO
 {
@@ -43,6 +45,47 @@ namespace QuanLiKhiThai.DAO
             {
                 return db.Users.Where(u => u.Role == role).ToList();
             }
+        }
+
+        public bool CreateAppointment(
+            InspectionAppointment appointment,
+            UserContext owner,
+            User station,
+            Vehicle vehicle,
+            Window windowToClose = null
+            )
+        {
+            var operations = new Dictionary<string, Func<bool>>
+            {
+                { "add appointment", () => InspectionAppointmentDAO.AddInspectionAppointment(appointment) }
+            };
+            Log logEntry = new Log
+            {
+                UserId = owner.UserId,
+                Action = $"Created an appointment for vehicle {vehicle.PlateNumber} at station {station.FullName}",
+                Timestamp = DateTime.Now
+            };
+
+
+            Notification notification = new Notification
+            {
+                UserId = station.UserId,
+                Message = $"New inspection appointment scheduled for vehicle {vehicle.PlateNumber} on {appointment.ScheduledDateTime:MM/dd/yyyy}",
+                SentDate = DateTime.Now,
+                IsRead = false
+            };
+
+            string successMessage = "Appointment created successfully";
+            string errorMessage = "Failed to create appointment";
+
+            bool result = TransactionHelper.ExecuteTransaction(operations, logEntry, notification, successMessage, errorMessage);
+            
+            if (result && windowToClose != null)
+            {
+                windowToClose.Close();
+            }
+
+            return result;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO;
-using QuanLiKhiThai.Models;
 using QuanLiKhiThai.ViewModel;
 using System;
 using System.Collections.Generic;

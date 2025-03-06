@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QuanLiKhiThai.Models
-{
     public class Constants
     {
         public const string Owner = "Owner";
@@ -18,8 +16,7 @@ namespace QuanLiKhiThai.Models
         public static string RESULT_FAILED = "Fail";
 
         public static string STATUS_PENDING = "Pending";
-        public static string STATUS_CONFIRMED = "Confirmed";
+        public static string STATUS_ASSIGNED = "Assigned";
         public static string STATUS_COMPLETED = "Completed";
         public static string STATUS_CANCELLED = "Cancelled";
     }
-}

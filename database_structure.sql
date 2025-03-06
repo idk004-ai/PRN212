@@ -1,4 +1,5 @@
 ﻿
+
 CREATE TABLE Users (
     UserID INT PRIMARY KEY IDENTITY(1,1),
     FullName NVARCHAR(100) NOT NULL,
@@ -28,7 +29,7 @@ CREATE TABLE InspectionAppointments (
 	ScheduledDateTime DATETIME NOT NULL,
 	Status NVARCHAR(20) DEFAULT 'Pending' NOT NULL,
 	CreatedAt DATETIME DEFAULT GETDATE(),
-	CONSTRAINT CHK_AppointmentStatus CHECK (Status IN ('Pending', 'Confirmed', 'Completed', 'Cancelled')),
+	CONSTRAINT CHK_AppointmentStatus CHECK (Status IN ('Pending', 'Assigned', 'Completed', 'Cancelled')),
     CONSTRAINT FK_Appointments_Vehicles FOREIGN KEY (VehicleID) REFERENCES Vehicles(VehicleID),
     CONSTRAINT FK_Appointments_Stations FOREIGN KEY (StationID) REFERENCES Users(UserID)
 )

@@ -1,6 +1,5 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO;
-using QuanLiKhiThai.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +21,10 @@ namespace QuanLiKhiThai
     /// </summary>
     public partial class ScheduleTestWindow : Window
     {
+        private bool _isProcessing = false;
+        private DateTime _lastButtonClickTime = DateTime.MinValue;
+        private readonly TimeSpan _minimumTimeBetweenClicks = TimeSpan.FromSeconds(1);
+
         public ScheduleTestWindow()
         {
             InitializeComponent();
@@ -32,7 +35,12 @@ namespace QuanLiKhiThai
         {
             int ownerId = UserContext.Current.UserId;
             List<Vehicle> vehicles = VehicleDAO.GetVehicleByOwner(ownerId);
-            this.cbVehicles.ItemsSource = vehicles;
+
+            // Filter out vehicles with pending appointments
+            var vehiclesWithoutPendingAppointments = vehicles.Where(v =>
+                !InspectionAppointmentDAO.HasPendingAppointment(v.VehicleId)).ToList();
+
+            this.cbVehicles.ItemsSource = vehiclesWithoutPendingAppointments;
             this.cbVehicles.DisplayMemberPath = "PlateNumber";
             this.cbVehicles.SelectedValuePath = "VehicleId";
 
@@ -56,51 +64,91 @@ namespace QuanLiKhiThai
 
         private void ScheduleButton_Click(object sender, RoutedEventArgs e)
         {
-            if (cbVehicles.SelectedItem == null)
+            // Check duration between clicks
+            if ((DateTime.Now - _lastButtonClickTime) < _minimumTimeBetweenClicks)
             {
-                ShowMessage("Please select a vehicle");
+                return; // Skip if the duration is too short
+            }
+
+            _lastButtonClickTime = DateTime.Now;
+
+            // Check if the previous operation is still processing
+            if (_isProcessing)
+            {
+                ShowMessage("Please wait, your request is being processed.");
                 return;
             }
 
-            if (cbStations.SelectedItem == null)
-            {
-                ShowMessage("Please select a station");
-                return;
-            }
+            _isProcessing = true;
+            Button scheduleButton = (Button)sender;
+            scheduleButton.IsEnabled = false;
 
-            if (!dpScheduleDate.SelectedDate.HasValue || dpScheduleDate.SelectedDate.Value < DateTime.Now)
+            try
             {
-                ShowMessage("Please select a valid future date");
-                return;
-            }
+                if (cbVehicles.SelectedItem == null)
+                {
+                    ShowMessage("Please select a vehicle");
+                    ResetButtonState(scheduleButton);
+                    return;
+                }
 
-            Vehicle? selectedVehicle = (Vehicle)cbVehicles.SelectedItem;
-            User? selectedStation = UserDAO.GetUserById((int)cbStations.SelectedValue);
+                if (cbStations.SelectedItem == null)
+                {
+                    ShowMessage("Please select a station");
+                    ResetButtonState(scheduleButton);
+                    return;
+                }
 
-            if (selectedVehicle == null || selectedStation == null)
-            {
-                ShowMessage("Invalid vehicle or station");
-                return;
-            }
+                if (!dpScheduleDate.SelectedDate.HasValue || dpScheduleDate.SelectedDate.Value < DateTime.Now)
+                {
+                    ShowMessage("Please select a valid future date");
+                    ResetButtonState(scheduleButton);
+                    return;
+                }
 
-            InspectionAppointment iAppointment = new InspectionAppointment
-            {
-                VehicleId = selectedVehicle.VehicleId,
-                StationId = selectedStation.UserId,
-                ScheduledDateTime = dpScheduleDate.SelectedDate.Value,
-                Status = Constants.STATUS_PENDING,
-                CreatedAt = DateTime.Now
-            };
+                Vehicle? selectedVehicle = (Vehicle)cbVehicles.SelectedItem;
+                User? selectedStation = UserDAO.GetUserById((int)cbStations.SelectedValue);
 
-            bool addSuccess = InspectionAppointmentDAO.AddInspectionAppointment(iAppointment);
-            if (addSuccess)
-            {
-                MessageBox.Show("Schedule test successfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (selectedVehicle == null || selectedStation == null)
+                {
+                    ShowMessage("Invalid vehicle or station");
+                    ResetButtonState(scheduleButton);
+                    return;
+                }
+
+                // Check if the vehicle already has a pending appointment
+                if (InspectionAppointmentDAO.HasPendingAppointment(selectedVehicle.VehicleId))
+                {
+                    MessageBox.Show("This vehicle already has a pending appointment. Please check your appointments list.",
+                        "Duplicate Appointment", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ResetButtonState(scheduleButton);
+                    return;
+                }
+
+                // Create a new inspection appointment
+                InspectionAppointment iAppointment = new InspectionAppointment
+                {
+                    VehicleId = selectedVehicle.VehicleId,
+                    StationId = selectedStation.UserId,
+                    ScheduledDateTime = dpScheduleDate.SelectedDate.Value,
+                    Status = Constants.STATUS_PENDING,
+                    CreatedAt = DateTime.Now
+                };
+
+                UserDAO userDAO = new UserDAO();
+                userDAO.CreateAppointment(iAppointment, UserContext.Current, selectedStation, selectedVehicle, this);
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Schedule test failed", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ResetButtonState(scheduleButton);
             }
+        }
+
+        private void ResetButtonState(Button button)
+        {
+            _isProcessing = false;
+            button.IsEnabled = true;
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)

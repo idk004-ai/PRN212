@@ -7,10 +7,51 @@
         mc:Ignorable="d"
         Title="AssignInspectorWindow" Height="450" Width="800">
     <Grid Background="Beige">
-        <StackPanel Margin="20">
-            <TextBlock Text="Assign Inspector" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
-            <ComboBox Name="comboBoxInspectors" Width="200" Margin="0,0,0,20"/>
-            <Button Content="Assign" Width="100" HorizontalAlignment="Center" Click="AssignButton_Click"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="20,20,20,10" Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock Text="Assign Inspector" FontSize="24" FontWeight="Bold"/>
+            <TextBlock Text="{Binding VehicleInfo}" FontSize="16" Width="500"/>
+        </StackPanel>
+
+        <!-- Inspector list -->
+        <DataGrid Grid.Row="1" Name="dgInspectors" AutoGenerateColumns="False" 
+          Margin="20" IsReadOnly="True" SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding FullName}" Width="*"/>
+                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
+                <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="*"/>
+                <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="*"/>
+                <DataGridTemplateColumn Header="Actions" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button x:Name="assignButton" Content="Assign" Click="AssignButton_Click" 
+                    Margin="5" Padding="8,3">
+                                <Button.Resources>
+                                    <Style TargetType="Button">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Content" Value="Assigned"/>
+                                                <Setter Property="Background" Value="LightGray"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Footer -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,20">
+            <Button Content="Cancel" Width="120" Height="30" Click="CancelButton_Click"/>
         </StackPanel>
     </Grid>
 </Window>

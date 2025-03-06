@@ -10,18 +10,16 @@ namespace QuanLiKhiThai.ViewModel
     {
         public string PlateNumber { get; set; }
         public string EmailOwner { get; set; }
-        public DateTime? LastInspectionDate { get; set; }
 
         public VehicleCheckViewModel()
         {
             
         }
 
-        public VehicleCheckViewModel(string plateNumber, string emailOwner, DateTime? lastInspectionDate)
+        public VehicleCheckViewModel(string plateNumber, string emailOwner)
         {
             PlateNumber = plateNumber;
             EmailOwner = emailOwner;
-            LastInspectionDate = lastInspectionDate;
         }
     }
 }

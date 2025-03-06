@@ -1,6 +1,5 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO;
-using QuanLiKhiThai.Models;
 using System.Windows;
 using System.Windows.Input;
 

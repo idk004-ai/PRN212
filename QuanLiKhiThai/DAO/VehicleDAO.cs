@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using QuanLiKhiThai.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,14 +30,15 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        public static List<Vehicle> GetVehicleNeedingInspection(int stationId)
+        public static List<Vehicle> GetVehicleWithPendingAppointments(int stationId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
-                return db.Vehicles
-                    .Include(v => v.InspectionRecords)
-                    .Include(v => v.Owner)
-                    .Where(v => v.InspectionRecords.Any(ir => ir.StationId == stationId && ir.Result == Constants.RESULT_TESTING))
+                return db.InspectionAppointments
+                    .Where(a => a.StationId == stationId && a.Status == Constants.STATUS_PENDING)
+                    .Include(a => a.Vehicle)
+                    .Include(a => a.Vehicle.Owner)
+                    .Select(a => a.Vehicle)
                     .ToList();
             }
         }
@@ -51,6 +51,17 @@ namespace QuanLiKhiThai.DAO
                     .Include(v => v.Owner)
                     .Include(v => v.InspectionRecords)
                     .FirstOrDefault(v => v.PlateNumber == plateNumber);
+            }
+        }
+
+        internal static Vehicle? GetVehicleById(int vehicleId)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Vehicles
+                    .Include(v => v.Owner)
+                    .Include(v => v.InspectionRecords)
+                    .FirstOrDefault(v => v.VehicleId == vehicleId);
             }
         }
     }

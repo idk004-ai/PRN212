@@ -28,5 +28,9 @@ public partial class User
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
+    public virtual ICollection<StationInspector> StationInspectorInspectors { get; set; } = new List<StationInspector>();
+
+    public virtual ICollection<StationInspector> StationInspectorStations { get; set; } = new List<StationInspector>();
+
     public virtual ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
 }

@@ -1,0 +1,158 @@
+﻿<Window x:Class="QuanLiKhiThai.VehicleInspectionDetailsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:QuanLiKhiThai"
+        mc:Ignorable="d"
+        Title="Vehicle Inspection Details" Height="700" Width="900">
+    <Grid Background="Beige">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="20,20,20,10">
+            <TextBlock x:Name="txtHeaderVehicleInfo" Text="Vehicle Inspection Details" FontSize="24" FontWeight="Bold"/>
+        </StackPanel>
+
+        <!-- Vehicle Information Section -->
+        <GroupBox Grid.Row="1" Header="Vehicle Information" Margin="20,10,20,10">
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Left Column -->
+                <StackPanel Grid.Column="0" Grid.Row="0" Margin="5">
+                    <TextBlock Text="Plate Number:" FontWeight="Bold"/>
+                    <TextBlock x:Name="txtPlateNumber" Text="" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="0" Grid.Row="1" Margin="5">
+                    <TextBlock Text="Brand:" FontWeight="Bold"/>
+                    <TextBlock x:Name="txtBrand" Text="" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="0" Grid.Row="2" Margin="5">
+                    <TextBlock Text="Model:" FontWeight="Bold"/>
+                    <TextBlock x:Name="txtModel" Text="" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="0" Grid.Row="3" Margin="5">
+                    <TextBlock Text="Manufacture Year:" FontWeight="Bold"/>
+                    <TextBlock x:Name="txtYear" Text="" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="0" Grid.Row="4" Margin="5">
+                    <TextBlock Text="Engine Number:" FontWeight="Bold"/>
+                    <TextBlock x:Name="txtEngineNumber" Text="" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <!-- Right Column -->
+                <StackPanel Grid.Column="1" Grid.Row="0" Margin="5">
+                    <TextBlock Text="Owner Name:" FontWeight="Bold"/>
+                    <TextBlock x:Name="txtOwnerName" Text="" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Grid.Row="1" Margin="5">
+                    <TextBlock Text="Owner Email:" FontWeight="Bold"/>
+                    <TextBlock x:Name="txtOwnerEmail" Text="" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Grid.Row="2" Margin="5">
+                    <TextBlock Text="Owner Phone:" FontWeight="Bold"/>
+                    <TextBlock x:Name="txtOwnerPhone" Text="" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Grid.Row="3" Margin="5">
+                    <TextBlock Text="Scheduled Date:" FontWeight="Bold"/>
+                    <TextBlock x:Name="txtScheduledDate" Text="" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Grid.Row="4" Margin="5">
+                    <TextBlock Text="Station Name:" FontWeight="Bold"/>
+                    <TextBlock x:Name="txtStationName" Text="" Margin="0,5,0,0"/>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+
+        <!-- Emission Test Form -->
+        <GroupBox Grid.Row="2" Header="Emission Test Results" Margin="20,10,20,10">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- CO2 Emission -->
+                    <StackPanel Grid.Row="0" Margin="5,10,5,10">
+                        <TextBlock Text="CO₂ Emission (g/km):" FontWeight="Bold"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="txtCO2Emission" Grid.Column="0" Margin="0,5,10,0" Height="30"/>
+                            <Button x:Name="btnMeasureCO2" Grid.Column="1" Content="Measure" Width="100" Height="30" Margin="0,5,0,0" Click="btnMeasureCO2_Click"/>
+                        </Grid>
+                        <TextBlock Text="Standard: Less than 120 g/km for passenger cars" Margin="0,5,0,0" Foreground="Gray" FontStyle="Italic"/>
+                    </StackPanel>
+
+                    <!-- HC Emission -->
+                    <StackPanel Grid.Row="1" Margin="5,10,5,10">
+                        <TextBlock Text="HC Emission (ppm):" FontWeight="Bold"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="txtHCEmission" Grid.Column="0" Margin="0,5,10,0" Height="30"/>
+                            <Button x:Name="btnMeasureHC" Grid.Column="1" Content="Measure" Width="100" Height="30" Margin="0,5,0,0" Click="btnMeasureHC_Click"/>
+                        </Grid>
+                        <TextBlock Text="Standard: Less than 100 ppm for passenger cars" Margin="0,5,0,0" Foreground="Gray" FontStyle="Italic"/>
+                    </StackPanel>
+
+                    <!-- Comments -->
+                    <StackPanel Grid.Row="2" Margin="5,10,5,10">
+                        <TextBlock Text="Inspector Comments:" FontWeight="Bold"/>
+                        <TextBox x:Name="txtComments" Height="100" TextWrapping="Wrap" Margin="0,5,0,0" AcceptsReturn="True"/>
+                    </StackPanel>
+
+                    <!-- Result Section -->
+                    <!--<StackPanel Grid.Row="3" Margin="5,20,5,10">
+                        <TextBlock Text="Inspection Result:" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <RadioButton x:Name="rbPass" Content="PASS" Margin="0,0,20,0" GroupName="Result"/>
+                            <RadioButton x:Name="rbFail" Content="FAIL" Margin="0,0,20,0" GroupName="Result"/>
+                            <RadioButton x:Name="rbTesting" Content="TESTING" IsChecked="True" GroupName="Result"/>
+                        </StackPanel>
+                    </StackPanel>-->
+                </Grid>
+            </ScrollViewer>
+        </GroupBox>
+
+        <!-- Footer with Buttons -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,10,20,20">
+            <Button Content="Cancel Inspection" Width="150" Height="35" Margin="0,0,10,0" 
+                    Click="CancelInspection_Click" Background="#FFDDDD"/>
+            <Button Content="Save Results" Width="150" Height="35" Margin="0,0,10,0" 
+                    Click="SaveResults_Click"/>
+            <Button Content="Close" Width="100" Height="35" Click="Close_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -11,12 +11,12 @@ using System.Threading.Tasks;
         public const string Station = "Station";
         public const string Police = "Police";
 
-        public static string RESULT_TESTING = "Testing";
-        public static string RESULT_PASSED = "Pass";
-        public static string RESULT_FAILED = "Fail";
+        public const string RESULT_TESTING = "Testing";
+        public const string RESULT_PASSED = "Pass";
+        public const string RESULT_FAILED = "Fail";
 
-        public static string STATUS_PENDING = "Pending";
-        public static string STATUS_ASSIGNED = "Assigned";
-        public static string STATUS_COMPLETED = "Completed";
-        public static string STATUS_CANCELLED = "Cancelled";
+        public const string STATUS_PENDING = "Pending";
+        public const string STATUS_ASSIGNED = "Assigned";
+        public const string STATUS_COMPLETED = "Completed";
+        public const string STATUS_CANCELLED = "Cancelled";
     }

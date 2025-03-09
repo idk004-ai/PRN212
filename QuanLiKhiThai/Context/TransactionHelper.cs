@@ -15,12 +15,12 @@ class TransactionHelper
     /// <param name="errorMessage"></param>
     /// <returns></returns>
     public static bool ExecuteTransaction(
-        Dictionary<string, Func<bool>> operations,
-        Log logEntry = null,
-        Notification notification = null,
-        string successMessage = null,
-        string errorMessage = "Transaction failed"
-        )
+    Dictionary<string, Func<bool>> operations,
+    Log logEntry = null,
+    Notification notification = null,
+    string successMessage = null,
+    string errorMessage = "Transaction failed"
+    )
     {
         bool success = false;
 
@@ -34,10 +34,19 @@ class TransactionHelper
                 // Execute all operations
                 foreach (var operation in operations)
                 {
-                    if (!operation.Value())
+                    try
+                    {
+                        if (!operation.Value())
+                        {
+                            allOperationsSuccess = false;
+                            failedOperation = operation.Key;
+                            break;
+                        }
+                    }
+                    catch (Exception opEx)
                     {
                         allOperationsSuccess = false;
-                        failedOperation = operation.Key;
+                        failedOperation = $"{operation.Key} - Error: {opEx.Message}";
                         break;
                     }
                 }
@@ -46,17 +55,39 @@ class TransactionHelper
                 if (allOperationsSuccess)
                 {
                     // Log the action if log entry is provided
-                    if (logEntry != null && !LogDAO.AddLog(logEntry))
+                    if (logEntry != null)
                     {
-                        allOperationsSuccess = false;
-                        failedOperation = "Logging";
+                        try
+                        {
+                            if (!LogDAO.AddLog(logEntry))
+                            {
+                                allOperationsSuccess = false;
+                                failedOperation = "Logging";
+                            }
+                        }
+                        catch (Exception logEx)
+                        {
+                            allOperationsSuccess = false;
+                            failedOperation = $"Logging - Error: {logEx.Message}";
+                        }
                     }
 
                     // Send notification if notification is provided
-                    if (notification != null && !NotificationDAO.AddNotification(notification))
+                    if (notification != null && allOperationsSuccess)
                     {
-                        allOperationsSuccess = false;
-                        failedOperation = "Notification";
+                        try
+                        {
+                            if (!NotificationDAO.AddNotification(notification))
+                            {
+                                allOperationsSuccess = false;
+                                failedOperation = "Notification";
+                            }
+                        }
+                        catch (Exception notifEx)
+                        {
+                            allOperationsSuccess = false;
+                            failedOperation = $"Notification - Error: {notifEx.Message}";
+                        }
                     }
 
                     if (allOperationsSuccess)
@@ -71,7 +102,7 @@ class TransactionHelper
                     }
                 }
 
-                if (!allOperationsSuccess) 
+                if (!allOperationsSuccess)
                 {
                     string detailedError = $"{errorMessage}: Failed at operation '{failedOperation}'";
                     MessageBox.Show(detailedError, "Error",
@@ -81,7 +112,8 @@ class TransactionHelper
         }
         catch (Exception ex)
         {
-            MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            // Hiển thị chi tiết lỗi
+            MessageBox.Show($"{errorMessage}: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
         return success;
     }

@@ -1,4 +1,4 @@
-USE QuanLiKhiThai
+﻿
 
 --DELETE FROM Users
 --DBCC CHECKIDENT('Users', RESEED, 0)
@@ -45,6 +45,62 @@ VALUES
     ('Harbor Vehicle Inspection', 'appointments@harborinspect.com', 'hashed_password_station9', 'Station', '(555) 901-2345', '579 Port Road, Waterfront, Ocean City 90009'),
     ('Mountain View Auto Check', 'info@mountainviewcheck.org', 'hashed_password_station10', 'Station', '(555) 012-3456', '864 Summit Way, Highland District, Peak Town 10010');
 
+-- SQL script để gán Inspector cho các Station
+-- Giả định:
+-- - Users với role 'Inspector' có UserID từ 11-20
+-- - Users với role 'Station' có UserID từ 21-30
+
+-- Thiết lập các tham số cho các ghi chú
+DECLARE @StandardNote NVARCHAR(MAX) = 'Regular inspection duties';
+DECLARE @SeniorNote NVARCHAR(MAX) = 'Senior inspector with specialized training';
+DECLARE @TemporaryNote NVARCHAR(MAX) = 'Temporary assignment for 3 months';
+DECLARE @TrainingNote NVARCHAR(MAX) = 'Under training supervision';
+DECLARE @SpecializedNote NVARCHAR(MAX) = 'Specialized in emission control systems';
+
+-- Chèn dữ liệu vào bảng StationInspectors với phân công đa dạng
+INSERT INTO StationInspectors (StationID, InspectorID, AssignedDate, IsActive, Notes)
+VALUES
+    -- Central Vehicle Inspection (21) có nhiều inspectors
+    (21, 11, DATEADD(MONTH, -6, GETDATE()), 1, @SeniorNote),  -- Michael Thompson là senior inspector
+    (21, 12, DATEADD(MONTH, -4, GETDATE()), 1, @StandardNote),  -- Jennifer Wilson
+    (21, 13, DATEADD(MONTH, -2, GETDATE()), 0, @TemporaryNote),  -- David Martinez (không còn active)
+
+    -- Highway Safety Center (22) có một số inspectors
+    (22, 14, DATEADD(MONTH, -5, GETDATE()), 1, @StandardNote),  -- Lisa Anderson
+    (22, 15, DATEADD(MONTH, -3, GETDATE()), 1, @SpecializedNote),  -- James Taylor
+
+    -- Quality Auto Inspection (23)
+    (23, 16, DATEADD(MONTH, -8, GETDATE()), 1, @StandardNote),  -- Sophia Nguyen
+    (23, 17, DATEADD(MONTH, -2, GETDATE()), 1, @TrainingNote),  -- Robert Johnson đang được đào tạo
+
+    -- Express Vehicle Check (24)
+    (24, 18, DATEADD(MONTH, -7, GETDATE()), 1, @SeniorNote),  -- Emma Garcia là senior inspector
+    (24, 19, DATEADD(MONTH, -1, GETDATE()), 1, @StandardNote),  -- Daniel Lee
+
+    -- Reliable Inspection Services (25)
+    (25, 20, DATEADD(MONTH, -9, GETDATE()), 1, @SpecializedNote),  -- Olivia Brown chuyên về hệ thống kiểm soát khí thải
+
+    -- Metro Vehicle Testing (26) có nhiều inspectors, bao gồm cả luân chuyển
+    (26, 11, DATEADD(MONTH, -3, GETDATE()), 1, @StandardNote),  -- Michael Thompson cũng làm việc tại đây
+    (26, 13, DATEADD(MONTH, -4, GETDATE()), 1, @StandardNote),  -- David Martinez
+
+    -- Countryside Inspection Station (27)
+    (27, 12, DATEADD(MONTH, -2, GETDATE()), 1, @StandardNote),  -- Jennifer Wilson cũng làm việc tại đây
+    (27, 14, DATEADD(MONTH, -5, GETDATE()), 0, @TemporaryNote),  -- Lisa Anderson (không còn active)
+
+    -- TechSafe Inspection Center (28)
+    (28, 15, DATEADD(MONTH, -6, GETDATE()), 1, @StandardNote),  -- James Taylor cũng làm việc tại đây
+    (28, 16, DATEADD(MONTH, -7, GETDATE()), 1, @SeniorNote),  -- Sophia Nguyen
+
+    -- Harbor Vehicle Inspection (29)
+    (29, 17, DATEADD(MONTH, -8, GETDATE()), 1, @StandardNote),  -- Robert Johnson
+    (29, 18, DATEADD(MONTH, -3, GETDATE()), 1, @SpecializedNote),  -- Emma Garcia
+
+    -- Mountain View Auto Check (30)
+    (30, 19, DATEADD(MONTH, -10, GETDATE()), 1, @SeniorNote),  -- Daniel Lee là senior inspector
+    (30, 20, DATEADD(MONTH, -1, GETDATE()), 1, @TrainingNote);  -- Olivia Brown đang được đào tạo
+
+
 --DELETE FROM Vehicles
 --DBCC CHECKIDENT ('Vehicles', RESEED, 0)
 
@@ -73,46 +129,16 @@ VALUES
     (4, 24, '2025-01-12 09:45:00', 'Completed', '2025-01-07 13:20:00'),
     (5, 25, '2025-01-15 13:15:00', 'Completed', '2025-01-10 11:10:00'),
     
-    -- Re-inspection appointments
+    -- Re-inspection appointment
     (3, 23, '2025-01-24 09:15:00', 'Completed', '2025-01-15 14:30:00'),
     
     -- February 2025 appointments
     (6, 26, '2025-02-03 09:00:00', 'Completed', '2025-01-28 10:45:00'),
     (7, 27, '2025-02-05 10:45:00', 'Completed', '2025-01-30 09:15:00'),
-    (8, 28, '2025-02-08 14:15:00', 'Completed', '2025-02-03 11:30:00'),
-    (9, 29, '2025-02-12 10:30:00', 'Completed', '2025-02-07 15:45:00'),
-    (10, 30, '2025-02-15 12:45:00', 'Completed', '2025-02-10 09:30:00'),
     
-    -- Re-inspection appointments
-    (6, 26, '2025-02-17 14:00:00', 'Completed', '2025-02-16 09:15:00'),
-    (10, 30, '2025-02-26 11:15:00', 'Completed', '2025-02-20 14:30:00'),
-    
-    -- Recent appointments
-    (1, 25, '2025-02-20 09:45:00', 'Completed', '2025-02-15 10:30:00'),
-    (2, 24, '2025-02-22 13:30:00', 'Completed', '2025-02-17 11:15:00'),
-    (4, 23, '2025-02-24 09:00:00', 'Completed', '2025-02-19 14:45:00'),
-    (5, 22, '2025-02-25 15:15:00', 'Completed', '2025-02-20 09:30:00'),
-    (7, 21, '2025-02-27 07:45:00', 'Completed', '2025-02-22 13:20:00'),
-    (8, 28, '2025-02-27 10:00:00', 'Completed', '2025-02-22 16:45:00'),
-    (9, 27, '2025-02-27 13:15:00', 'Completed', '2025-02-23 10:30:00'),
-    
-    -- Today's appointments
-    (1, 21, '2025-02-27 06:45:00', 'Completed', '2025-02-23 11:30:00'),
-    (3, 23, '2025-02-27 07:15:00', 'Completed', '2025-02-23 15:45:00'),
-    (5, 25, '2025-02-27 07:20:00', 'Completed', '2025-02-24 09:20:00'),
-    (7, 27, '2025-02-27 07:20:00', 'Completed', '2025-02-24 13:35:00'),
-    
-    -- Testing appointments
-    (2, 22, '2025-02-28 09:00:00', 'Assigned', '2025-02-25 10:15:00'),
-    (4, 24, '2025-02-28 10:15:00', 'Assigned', '2025-02-25 14:30:00'),
-    (6, 26, '2025-02-28 11:30:00', 'Assigned', '2025-02-26 09:45:00'),
-    (10, 23, '2025-02-28 13:00:00', 'Assigned', '2025-02-26 15:20:00'),
-    (8, 30, '2025-02-28 14:30:00', 'Assigned', '2025-02-27 10:15:00'),
-    (9, 29, '2025-02-28 15:15:00', 'Assigned', '2025-02-27 11:30:00'),
-    (3, 25, '2025-02-28 15:45:00', 'Assigned', '2025-02-27 13:45:00'),
-    (5, 27, '2025-02-28 16:15:00', 'Assigned', '2025-02-27 16:00:00'),
-    (1, 28, '2025-02-28 16:45:00', 'Assigned', '2025-02-27 17:30:00');
-
+    -- Testing appointments now completed
+    (2, 22, '2025-02-28 09:00:00', 'Completed', '2025-02-25 10:15:00'),
+    (4, 24, '2025-02-28 10:15:00', 'Completed', '2025-02-25 14:30:00');
 
 GO
 
@@ -207,25 +233,25 @@ EXEC sp_AddInspectionRecord
     @Comments = 'Re-inspection after repairs. Catalytic converter replaced. Now within limits.',
     @AppointmentID = 6;
 
--- Testing status inspections
+-- Previously testing status inspections, now with Pass/Fail results
 EXEC sp_AddInspectionRecord
     @VehicleID = 2,
     @StationID = 22,
     @InspectorID = 11,
     @InspectionDate = '2025-02-28 09:15:00',
-    @Result = 'Testing',
+    @Result = 'Pass',
     @CO2Emission = 140.25,
     @HCEmission = 0.85,
-    @Comments = 'Initial testing phase. Vehicle undergoing extended emission analysis.',
-    @AppointmentID = 25;
+    @Comments = 'Vehicle passed emission tests after comprehensive analysis.',
+    @AppointmentID = 9;
 
 EXEC sp_AddInspectionRecord
     @VehicleID = 4,
     @StationID = 24,
     @InspectorID = 13,
     @InspectionDate = '2025-02-28 10:30:00',
-    @Result = 'Testing',
+    @Result = 'Fail',
     @CO2Emission = 146.80,
-    @HCEmission = 0.92,
-    @Comments = 'Testing after engine modifications. Additional diagnostics in progress.',
-    @AppointmentID = 26;
+    @HCEmission = 1.52,
+    @Comments = 'Failed due to high HC emissions. Engine needs adjustment and possible valve repair.',
+    @AppointmentID = 10;

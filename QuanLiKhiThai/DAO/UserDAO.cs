@@ -87,5 +87,16 @@ namespace QuanLiKhiThai.DAO
 
             return result;
         }
+
+        public static List<User> GetInspectorInStation(int stationId)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.StationInspectors
+                    .Where(s => s.StationId == stationId && s.IsActive == true)
+                    .Select(s => s.Inspector)
+                    .ToList();
+            }
+        }
     }
 }

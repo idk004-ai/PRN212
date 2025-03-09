@@ -1,5 +1,4 @@
 ﻿
-
 CREATE TABLE Users (
     UserID INT PRIMARY KEY IDENTITY(1,1),
     FullName NVARCHAR(100) NOT NULL,
@@ -50,6 +49,26 @@ CREATE TABLE InspectionRecords (
     CONSTRAINT FK_InspectionRecords_Stations FOREIGN KEY (StationID) REFERENCES Users(UserID),
     CONSTRAINT FK_InspectionRecords_Users FOREIGN KEY (InspectorID) REFERENCES Users(UserID),
 	CONSTRAINT FK_InspectionRecords_Appointments FOREIGN KEY (AppointmentID) REFERENCES InspectionAppointments(AppointmentID)
+);
+
+GO
+
+CREATE TABLE StationInspectors (
+    StationInspectorID INT PRIMARY KEY IDENTITY(1,1),
+    StationID INT NOT NULL,
+    InspectorID INT NOT NULL,
+    AssignedDate DATETIME DEFAULT GETDATE(),
+    IsActive BIT DEFAULT 1,
+    Notes NVARCHAR(MAX),
+    
+    -- Tham chiếu khóa ngoại bình thường
+    CONSTRAINT FK_StationInspectors_Station FOREIGN KEY (StationID) 
+        REFERENCES Users(UserID),
+    CONSTRAINT FK_StationInspectors_Inspector FOREIGN KEY (InspectorID) 
+        REFERENCES Users(UserID),
+    
+    -- Đảm bảo mỗi Inspector chỉ được liên kết với mỗi Station một lần
+    CONSTRAINT UQ_StationInspector UNIQUE (StationID, InspectorID)
 );
 
 GO

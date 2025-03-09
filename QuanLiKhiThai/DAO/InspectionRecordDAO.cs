@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using QuanLiKhiThai.Context;
+using System.Windows;
 
 namespace QuanLiKhiThai.DAO
 {
@@ -51,6 +48,169 @@ namespace QuanLiKhiThai.DAO
                     .Where(i => i.AppointmentId == appointmentId)
                     .FirstOrDefault();
             }
+        }
+
+        public static List<InspectionRecord> GetTestingRecordsByInspectorId(int inspectorId)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.InspectionRecords
+                    .Include(ir => ir.Vehicle)
+                    .Include(ir => ir.Vehicle.Owner)
+                    .Include(ir => ir.Station)
+                    .Include(ir => ir.Appointment)
+                    .Where(ir => ir.InspectorId == inspectorId && ir.Result == Constants.RESULT_TESTING)
+                    .ToList();
+            }
+        }
+
+        public bool UpdateRecord(InspectionRecord record)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                db.InspectionRecords.Update(record);
+                return db.SaveChanges() > 0;
+            }
+        }
+
+        public bool RecordInspectionResult(
+                InspectionRecord record,
+                UserContext inspector,
+                string vehiclePlateNumber,
+                string stationFullName,
+                Window windowToClose = null
+            )
+        {
+            var operations = new Dictionary<string, Func<bool>>
+            {
+                { "update record", () => UpdateRecord(record) },
+                { "update appointment", () => { 
+                    if (!InspectionAppointmentValidation.ValidateDataConsistency(record.Appointment, Constants.STATUS_COMPLETED))
+                    {
+                        return false;
+                    }
+                    record.Appointment.Status = Constants.STATUS_COMPLETED;
+                    return InspectionAppointmentDAO.UpdateAppointment(record.Appointment);
+                }}
+            };
+
+            Log logEntry = new Log
+            {
+                UserId = inspector.UserId,
+                Action = $"Recorded inspection result for vehicle {vehiclePlateNumber}",
+                Timestamp = DateTime.Now
+            };
+
+            Notification notification = new Notification
+            {
+                UserId = inspector.UserId,
+                Message = $"You have recorded inspection result for vehicle {vehiclePlateNumber} at {stationFullName}",
+                SentDate = DateTime.Now,
+                IsRead = false
+            };
+
+            string successMessage = $"Inspection result for vehicle {vehiclePlateNumber} has been recorded at {stationFullName}.";
+            string errorMessage = "Failed to record inspection result";
+
+            bool result = TransactionHelper.ExecuteTransaction(
+                operations,
+                logEntry,
+                notification,
+                successMessage,
+                errorMessage
+            );
+
+            if (result && windowToClose != null)
+            {
+                windowToClose.Close();
+            }
+
+            return result;
+        }
+
+        public bool DeleteRecord(int recordId)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                var record = db.InspectionRecords.Find(recordId);
+                if (record == null)
+                {
+                    return false;
+                }
+                db.InspectionRecords.Remove(record);
+                return db.SaveChanges() > 0;
+            }
+        }
+
+        public bool CancelInspection(
+                InspectionRecord inspectionRecord,
+                UserContext inspector,
+                string vehiclePlateNumber,
+                string stationFullName,
+                Window windowToClose = null
+            )
+        {
+            if (inspectionRecord == null)
+            {
+                MessageBox.Show("Cannot cancel inspection. No record found for this vehicle.",
+            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            int appointmentId = inspectionRecord.AppointmentId;
+            var appointment = InspectionAppointmentDAO.GetAppointmentById(appointmentId);
+            if (appointment == null) {
+                MessageBox.Show("Cannot cancel inspection. No appointment found for this record.", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            var operations = new Dictionary<string, Func<bool>>
+            {
+                {"delete record", () => DeleteRecord(inspectionRecord.RecordId) },
+                {"update appointment", () =>
+                {
+                    var updatedAppointment = InspectionAppointmentDAO.GetAppointmentById(appointmentId);
+                    if (updatedAppointment == null) return false;
+                    if (!InspectionAppointmentValidation.ValidateDataConsistency(updatedAppointment, Constants.STATUS_CANCELLED)) return false;
+                    updatedAppointment.Status = Constants.STATUS_CANCELLED;
+                    return InspectionAppointmentDAO.UpdateAppointment(updatedAppointment);
+                } }
+            };
+
+            Log logEntry = new Log
+            {
+                UserId = inspector.UserId,
+                Action = $"Cancelled inspection for vehicle {vehiclePlateNumber}",
+                Timestamp = DateTime.Now
+            };
+			
+
+            Notification notification = new Notification
+            {
+                UserId = inspector.UserId,
+                Message = $"Inspector {inspector.FullName} has cancelled the inspection for vehicle {vehiclePlateNumber}",
+                SentDate = DateTime.Now,
+                IsRead = false
+            };
+
+            string successMessage = $"Inspection for vehicle {vehiclePlateNumber} has been cancelled at {stationFullName}.";
+            string errorMessage = "Failed to cancel inspection";
+
+            bool result = TransactionHelper.ExecuteTransaction(
+                operations,
+                logEntry,
+                notification,
+                successMessage,
+                errorMessage
+            );
+
+            if (result && windowToClose != null)
+            {
+                windowToClose.Close();
+            }
+
+            return result;
         }
     }
 }

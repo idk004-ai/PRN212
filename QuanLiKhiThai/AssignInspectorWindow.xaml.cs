@@ -35,7 +35,6 @@ namespace QuanLiKhiThai
 
         private void DisableAllAssignButtons()
         {
-            // Tìm tất cả button trong DataGrid và disable
             foreach (var item in dgInspectors.Items)
             {
                 DataGridRow row = (DataGridRow)dgInspectors.ItemContainerGenerator.ContainerFromItem(item);
@@ -49,6 +48,23 @@ namespace QuanLiKhiThai
                 }
             }
         }
+
+        private void EnableAllAssignButtons()
+        {
+            foreach (var item in dgInspectors.Items)
+            {
+                DataGridRow row = (DataGridRow)dgInspectors.ItemContainerGenerator.ContainerFromItem(item);
+                if (row != null)
+                {
+                    var button = DataGridHelper.FindVisualChild<Button>(row);
+                    if (button != null)
+                    {
+                        button.IsEnabled = true;
+                    }
+                }
+            }
+        }
+
 
         private void IsVehicleHaveAnyAssignment()
         {
@@ -67,14 +83,10 @@ namespace QuanLiKhiThai
 
         private void LoadData()
         {
-            List<User> inspectors = UserDAO.GetUserByRole(Constants.Inspector);
+            // TODO: Load inspectors in the station
+            List<User> inspectors = UserDAO.GetInspectorInStation(UserContext.Current.UserId);
             this.dgInspectors.ItemsSource = inspectors;
             IsVehicleHaveAnyAssignment();
-        }
-
-        private void ExecuteTrans(InspectionRecord newRecord)
-        {
-
         }
 
         private void AssignButton_Click(object sender, RoutedEventArgs e)
@@ -92,20 +104,21 @@ namespace QuanLiKhiThai
 
             Button button = sender as Button;
 
-            DisableAllAssignButtons();
-
             try
             {
                 User? selectedInspector = button?.DataContext as User;
 
                 if (selectedInspector != null)
                 {
+                    DisableAllAssignButtons();
+
                     // TODO: Assign inspector to vehicle
                     Vehicle? vehicle = VehicleDAO.GetVehicleByPlateNumber(_vehicleViewModel.PlateNumber);
                     if (vehicle == null)
                     {
                         MessageBox.Show("Vehicle information not found.",
                             "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        EnableAllAssignButtons();
                         return;
                     }
 
@@ -113,12 +126,14 @@ namespace QuanLiKhiThai
                     if (appointments == null || appointments.Count == 0)
                     {
                         MessageBox.Show("No inspection appointment found for this vehicle", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        EnableAllAssignButtons();
                         return;
                     }
 
                     // TODO3: Validate assignment
                     if (!InspectionAppointmentValidation.ValidateAssignment(appointments, vehicle.VehicleId))
                     {
+                        EnableAllAssignButtons();
                         return;
                     }
 
@@ -140,7 +155,7 @@ namespace QuanLiKhiThai
                         StationId = UserContext.Current.UserId,
                         InspectorId = selectedInspector.UserId,
                         AppointmentId = appointment.AppointmentId,
-                        InspectionDate = DateTime.Now,
+                        InspectionDate = appointment.ScheduledDateTime,
                         Result = Constants.RESULT_TESTING,
                         Co2emission = 0,
                         Hcemission = 0,
@@ -151,7 +166,7 @@ namespace QuanLiKhiThai
                     appointment.Status = Constants.STATUS_ASSIGNED;
 
                     InspectionAppointmentDAO stationOperations = new InspectionAppointmentDAO();
-                    stationOperations.AssignInspector
+                    bool assignSuccess = stationOperations.AssignInspector
                         (
                             newRecord,
                             appointment,
@@ -161,15 +176,23 @@ namespace QuanLiKhiThai
                             UserContext.Current.FullName,
                             this
                         );
+
+                    if (!assignSuccess)
+                    {
+                        MessageBox.Show("Failed to assign inspector to vehicle", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        EnableAllAssignButtons();
+                    }
                 }
                 else
                 {
                     MessageBox.Show("Please select an inspector", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    EnableAllAssignButtons();
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                EnableAllAssignButtons();
             }
             finally
             {

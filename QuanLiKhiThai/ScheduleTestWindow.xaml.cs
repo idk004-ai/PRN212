@@ -1,18 +1,7 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace QuanLiKhiThai
 {
@@ -116,11 +105,8 @@ namespace QuanLiKhiThai
                     return;
                 }
 
-                // Check if the vehicle already has a pending appointment
-                if (InspectionAppointmentDAO.HasPendingAppointment(selectedVehicle.VehicleId))
+                if (!InspectionAppointmentValidation.ValidatingScheduling(selectedVehicle.VehicleId))
                 {
-                    MessageBox.Show("This vehicle already has a pending appointment. Please check your appointments list.",
-                        "Duplicate Appointment", MessageBoxButton.OK, MessageBoxImage.Warning);
                     ResetButtonState(scheduleButton);
                     return;
                 }

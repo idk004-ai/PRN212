@@ -60,6 +60,11 @@ namespace QuanLiKhiThai
                     neededCheckVehicleList.Show();
                     this.Close();
                     break;
+                case Constants.Inspector:
+                    InspectorVehicleListWindow inspectorVehicleList = new InspectorVehicleListWindow();
+                    inspectorVehicleList.Show();
+                    this.Close();
+                    break;
             }
         }
 

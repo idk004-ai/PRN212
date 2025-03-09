@@ -1,15 +1,73 @@
 ﻿using QuanLiKhiThai.DAO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace QuanLiKhiThai.Context
 {
     class InspectionAppointmentValidation
     {
+
+        public static bool ValidatingScheduling(int vehicleId)
+        {
+            InspectionRecord? lastRecord = InspectionRecordDAO.GetLastRecordByVehicleId(vehicleId);
+            if (lastRecord == null)
+                return true;
+
+            if (lastRecord.Result == Constants.RESULT_FAILED)
+                return true;
+
+            if (lastRecord.Result == Constants.RESULT_PASSED)
+            {
+                DateTime? lastInspectionDate = lastRecord.InspectionDate;
+                if (!lastInspectionDate.HasValue)
+                {
+                    MessageBox.Show("Previous inspection record is missing inspection date.",
+                        "Data Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return true; // Allow inspection due to data inconsistency
+                }
+
+                if (InspectionAppointmentDAO.HasPendingAppointment(vehicleId))
+                {
+                    MessageBox.Show("This vehicle already has a pending appointment. Please check your appointments list.",
+                        "Duplicate Appointment", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
+                }
+
+                Vehicle? vehicle = VehicleDAO.GetVehicleById(vehicleId);
+                if (vehicle == null)
+                {
+                    MessageBox.Show("Vehicle not found.",
+                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
+                }
+
+                int monthsUntilNextInspection = GetRequiredInspectionIntervalMonths(vehicle);
+
+                DateTime nextRequiredDate = lastInspectionDate.Value.AddMonths(monthsUntilNextInspection);
+
+                // Allow 30 days early inspection before the due date
+                DateTime earliestAllowedDate = nextRequiredDate.AddDays(-30);
+
+                if (DateTime.Now < earliestAllowedDate)
+                {
+                    // calculate days until next allowed inspection
+                    int daysUntilAllowed = (earliestAllowedDate - DateTime.Now).Days;
+
+                    MessageBox.Show($"The vehicle's previous inspection is still valid. Next inspection allowed in {daysUntilAllowed} days.",
+                        "Early Inspection", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                    // Ask if they want to proceed
+                    MessageBoxResult result = MessageBox.Show(
+                        "Do you want to proceed with a special out-of-cycle inspection?\n" +
+                        "This should only be done for vehicles with significant modifications or repairs.",
+                        "Confirm Special Inspection",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    return result == MessageBoxResult.Yes;
+                }
+            }
+            return true;
+        }
 
         public static bool ValidateAssignment(List<InspectionAppointment> appointments, int vehicleId)
         {
@@ -18,16 +76,13 @@ namespace QuanLiKhiThai.Context
                 MessageBox.Show("No inspection appointment found for this vehicle", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
-            else if (appointments.Count == 1)
-            {
-                ValidateFirstInspection(appointments[0]);
-            }
-            else
-            {
-                InspectionAppointment appointmentId = InspectionAppointmentDAO.GetLastAppointment(appointments);
-                if (!ValidateReInspection(vehicleId, appointmentId.AppointmentId) || !ValidateDataConsistency(appointmentId))
-                    return false;
-            }
+
+            InspectionAppointment appointment = InspectionAppointmentDAO.GetLastAppointment(appointments);
+            if(appointments.Count == 0) 
+                return ValidateFirstInspection(appointment);
+            if (!ValidateDataConsistency(appointment))
+                return false;
+
             return true;
         }
 
@@ -52,62 +107,6 @@ namespace QuanLiKhiThai.Context
             return true; 
         }
 
-        public static bool ValidateReInspection(int vehicleId, int appointmentId)
-        {
-            InspectionRecord? lastRecord = InspectionRecordDAO.GetLastRecordByVehicleId(vehicleId);
-            InspectionAppointment? appointment = InspectionAppointmentDAO.GetAppointmentById(appointmentId);
-            if (appointment == null)
-            {
-                MessageBox.Show("Current appointment not found.",
-                    "Data Consistency Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
-
-            if (lastRecord.Result == Constants.RESULT_FAILED)
-            {
-                return true;
-            }
-
-            if (lastRecord.Result == Constants.RESULT_PASSED)
-            {
-                DateTime? lastInspectionDate = lastRecord.InspectionDate;
-                if (!lastInspectionDate.HasValue)
-                {
-                    MessageBox.Show("Previous inspection record is missing inspection date.",
-                        "Data Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return true; // Allow inspection due to data inconsistency
-                }
-                // TODO: Calculate the time period on vehicle type
-                Vehicle? vehicle = VehicleDAO.GetVehicleById(vehicleId);
-                int monthsUntilNextInspection = GetRequiredInspectionIntervalMonths(vehicle);
-
-                DateTime nextRequiredDate = lastInspectionDate.Value.AddMonths(monthsUntilNextInspection);
-
-                // Allow 30 days early inspection before the due date
-                DateTime earliestAllowedDate = nextRequiredDate.AddDays(-30);
-
-                if ( DateTime.Now < earliestAllowedDate) 
-                {
-                    // calculate days until next allowed inspection
-                    int daysUntilAllowed = (earliestAllowedDate - DateTime.Now).Days;
-
-                    MessageBox.Show($"The vehicle's previous inspection is still valid. Next inspection allowed in {daysUntilAllowed} days.",
-                        "Early Inspection", MessageBoxButton.OK, MessageBoxImage.Warning);
-
-                    // Ask if they want to proceed
-                    MessageBoxResult result = MessageBox.Show(
-                        "Do you want to proceed with a special out-of-cycle inspection?\n" +
-                        "This should only be done for vehicles with significant modifications or repairs.",
-                        "Confirm Special Inspection",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Question);
-
-                    return result == MessageBoxResult.Yes;
-                }
-            }
-            return true;
-        }
-
         private static int GetRequiredInspectionIntervalMonths(Vehicle? vehicle)
         {
             int vehicleAge = DateTime.Now.Year - vehicle.ManufactureYear;
@@ -122,35 +121,65 @@ namespace QuanLiKhiThai.Context
             // Additional rules can be added here
         }
 
+        private static void LogValidationError(string mess, int? userId = null)
+        {
+            try
+            {
+                int actualUserId = userId ?? UserContext.Current.UserId;
+                Log validationLog = new Log
+                {
+                    UserId = actualUserId,
+                    Action = mess,
+                    Timestamp = DateTime.Now
+                };
+                bool logSuccess = LogDAO.AddLog(validationLog);
+                System.Diagnostics.Debug.WriteLine($"Validation error logged: {mess}");
+            }
+            catch(Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to log validation error: {e.Message}");
+                System.Diagnostics.Debug.WriteLine($"Original message: {mess}");
+            }
+        }
+
         public static bool ValidateDataConsistency(InspectionAppointment appointment, string newStatus = null)
         {
+            int currentUserId = UserContext.Current.UserId;
+            if (appointment == null)
+            {
+                LogValidationError("Cannot validate data consistency for null appointment", currentUserId);
+            }
             using (var db = new QuanLiKhiThaiContext())
             {
                 var record = InspectionRecordDAO.GetRecordByAppointment(appointment.AppointmentId);
-
                 string status = newStatus ?? appointment.Status;
+
 
                 // TODO1: Pending/Cancelled appointments should not have records
                 if ((status == Constants.STATUS_PENDING || status == Constants.STATUS_CANCELLED) && record != null)
                 {
-                        MessageBox.Show("Data inconsistency: Pending/Cancelled appointments should not have records.",
-                            "Data Consistency Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return false;
+                     string err = $"Data inconsistency: {status} appointments should not have records. AppointmentId: {appointment.AppointmentId}, Status: {status}";
+                    LogValidationError(err, currentUserId); 
+                    return false;
                 }
 
                 // TODO2: Assigned appointments should have records but not completed
                 if (status == Constants.STATUS_ASSIGNED && (record?.Result == Constants.RESULT_PASSED || record?.Result == Constants.RESULT_FAILED))
                 {
-                    MessageBox.Show("Data inconsistency: Assigned or Confirmed appointments shouldn't have final inspection results yet",
-                       "Data Consistency Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    string err = $"Data inconsistency: Assigned appointments shouldn't have final inspection results yet. AppointmentId: {appointment.AppointmentId}, Status: {status}";
+                    LogValidationError(err, currentUserId);
                     return false;
                 }
 
                 // TODO3: Completed appointments should have records with final results
                 if (status == Constants.STATUS_COMPLETED && (record == null || record.Result == Constants.RESULT_TESTING))
                 {
-                    MessageBox.Show("Data inconsistency: Completed appointments should have final inspection results",
-                        "Data Consistency Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    string err = $"Data inconsistency: Completed appointments should have final inspection results. AppointmentId: {appointment.AppointmentId}, Status: {status}";
+                    if (record != null)
+                        err += $", RecordResult: {record.Result}";
+                    else
+                        err += ", No record found";
+                    LogValidationError(err, currentUserId);
                     return false;
                 }
             }

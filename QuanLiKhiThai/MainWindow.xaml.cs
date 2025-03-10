@@ -1,5 +1,6 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO;
+using QuanLiKhiThai.Helper;
 using System.Windows;
 using System.Windows.Input;
 
@@ -100,5 +101,12 @@ namespace QuanLiKhiThai
             loginWindow.Show();
             this.Close();
         }
+
+        private void LogsMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            // Mở logs window (sẽ kiểm tra quyền)
+            LogsViewManager.Instance.ShowLogsWindow();
+        }
+
     }
 }

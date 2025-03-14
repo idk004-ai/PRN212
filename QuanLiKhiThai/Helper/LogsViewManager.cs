@@ -6,20 +6,11 @@ namespace QuanLiKhiThai.Helper
 {
     public class LogsViewManager
     {
-        private static LogsViewManager _instance;
-        private static LogsMonitorWindow _logsWindow;
-        private static bool _autoShow = true;  // Mặc định là mở tự động
+        private LogsMonitorWindow _logsWindow;
+        private bool _autoShow = true;
 
-        public static LogsViewManager Instance
+        public LogsViewManager()
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new LogsViewManager();
-                }
-                return _instance;
-            }
         }
 
         // Cấu hình có mở tự động khi khởi động không
@@ -53,7 +44,8 @@ namespace QuanLiKhiThai.Helper
             {
                 if (_logsWindow == null || !_logsWindow.IsLoaded)
                 {
-                    _logsWindow = new LogsMonitorWindow();
+                    // Get Window from DI container
+                    _logsWindow = App.GetService<LogsMonitorWindow>();
                     _logsWindow.Closed += (s, e) => _logsWindow = null;
                     _logsWindow.Show();
                 }

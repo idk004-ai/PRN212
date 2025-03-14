@@ -1,19 +1,8 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO;
+using QuanLiKhiThai.DAO.Interface;
 using QuanLiKhiThai.ViewModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace QuanLiKhiThai
 {
@@ -22,16 +11,18 @@ namespace QuanLiKhiThai
     /// </summary>
     public partial class VehicleHistory : Window
     {
+        private IVehicleDAO _vehicleDAO;
 
-        public VehicleHistory()
+        public VehicleHistory(IVehicleDAO vehicleDAO)
         {
             InitializeComponent();
+            this._vehicleDAO = vehicleDAO;
             LoadVehicleInfo();
         }
         private void LoadVehicleInfo()
         {
             // Load vehicle info
-            List<Vehicle> vehicles = VehicleDAO.GetVehicleByOwner(UserContext.Current.UserId);
+            List<Vehicle> vehicles = _vehicleDAO.GetVehicleByOwnerId(UserContext.Current.UserId).ToList();
 
             // Bind data to DataGrid
             List<InspectionRecordViewModel> records = new List<InspectionRecordViewModel>();

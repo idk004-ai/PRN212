@@ -1,5 +1,6 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO;
+using QuanLiKhiThai.DAO.Interface;
 using QuanLiKhiThai.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -25,11 +26,19 @@ namespace QuanLiKhiThai
         private VehicleCheckViewModel _vehicleViewModel;
         private bool _isProcessing = false; // Flag to prevent multiple clicks
         private static readonly object _lockObj = new object(); // ensure thread safety
+        private readonly IUserDAO _userDAO;
+        private readonly IVehicleDAO _vehicleDAO;
+        private readonly IInspectionAppointmentDAO _inspectionAppointmentDAO;
+        private readonly IInspectionRecordDAO _inspectionRecordDAO;
 
-        public AssignInspectorWindow(VehicleCheckViewModel vehicleViewModel)
+        public AssignInspectorWindow(VehicleCheckViewModel vehicleViewModel, IUserDAO userDAO, IVehicleDAO vehicleDAO, IInspectionAppointmentDAO inspectionAppointmentDAO, IInspectionRecordDAO inspectionRecordDAO)
         {
             InitializeComponent();
             this._vehicleViewModel = vehicleViewModel;
+            this._userDAO = userDAO;
+            this._vehicleDAO = vehicleDAO;
+            this._inspectionAppointmentDAO = inspectionAppointmentDAO;
+            this._inspectionRecordDAO = inspectionRecordDAO;
             LoadData();
         }
 
@@ -68,10 +77,10 @@ namespace QuanLiKhiThai
 
         private void IsVehicleHaveAnyAssignment()
         {
-            Vehicle? vehicle = VehicleDAO.GetVehicleByPlateNumber(_vehicleViewModel.PlateNumber);
+            Vehicle? vehicle = _vehicleDAO.GetByPlateNumber(_vehicleViewModel.PlateNumber);
             if (vehicle != null)
             {
-                var existingRecords = InspectionRecordDAO.GetCurrentRecordByVehicleId(vehicle.VehicleId);
+                var existingRecords = _inspectionRecordDAO.GetCurrentRecordByVehicleId(vehicle.VehicleId);
                 if (existingRecords != null)
                 {
                     MessageBox.Show($"Vehicle {_vehicleViewModel.PlateNumber} has already been assigned to an inspector.",
@@ -84,7 +93,7 @@ namespace QuanLiKhiThai
         private void LoadData()
         {
             // TODO: Load inspectors in the station
-            List<User> inspectors = UserDAO.GetInspectorInStation(UserContext.Current.UserId);
+            List<User> inspectors = _userDAO.GetInspectorsInStation(UserContext.Current.UserId).ToList();
             this.dgInspectors.ItemsSource = inspectors;
             IsVehicleHaveAnyAssignment();
         }
@@ -102,7 +111,7 @@ namespace QuanLiKhiThai
                 _isProcessing = true;
             }
 
-            Button button = sender as Button;
+            Button? button = sender as Button;
 
             try
             {
@@ -113,7 +122,7 @@ namespace QuanLiKhiThai
                     DisableAllAssignButtons();
 
                     // TODO: Assign inspector to vehicle
-                    Vehicle? vehicle = VehicleDAO.GetVehicleByPlateNumber(_vehicleViewModel.PlateNumber);
+                    Vehicle? vehicle = _vehicleDAO.GetByPlateNumber(_vehicleViewModel.PlateNumber);
                     if (vehicle == null)
                     {
                         MessageBox.Show("Vehicle information not found.",
@@ -122,7 +131,7 @@ namespace QuanLiKhiThai
                         return;
                     }
 
-                    List<InspectionAppointment>? appointments = InspectionAppointmentDAO.GetAppointmentByVehicleAndStation(vehicle.VehicleId, UserContext.Current.UserId);
+                    List<InspectionAppointment>? appointments = _inspectionAppointmentDAO.GetByVehicleAndStation(vehicle.VehicleId, UserContext.Current.UserId).ToList();
                     if (appointments == null || appointments.Count == 0)
                     {
                         MessageBox.Show("No inspection appointment found for this vehicle", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -137,10 +146,10 @@ namespace QuanLiKhiThai
                         return;
                     }
 
-                    InspectionAppointment appointment = InspectionAppointmentDAO.GetLastAppointment(appointments);
+                    InspectionAppointment appointment = _inspectionAppointmentDAO.GetLast(appointments);
 
                     // TODO4: Check whether any record for this appointment
-                    if (InspectionRecordDAO.GetRecordByAppointment(appointment.AppointmentId) != null)
+                    if (_inspectionRecordDAO.GetRecordByAppointment(appointment.AppointmentId) != null)
                     {
                         MessageBox.Show("An inspector has already been assigned to this appointment.",
                             "Already Assigned", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -165,8 +174,7 @@ namespace QuanLiKhiThai
                     // TODO6: Update appointment status to reflect the assignment
                     appointment.Status = Constants.STATUS_ASSIGNED;
 
-                    InspectionAppointmentDAO stationOperations = new InspectionAppointmentDAO();
-                    bool assignSuccess = stationOperations.AssignInspector
+                    bool assignSuccess = _inspectionRecordDAO.AssignInspector
                         (
                             newRecord,
                             appointment,

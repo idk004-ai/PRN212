@@ -1,5 +1,6 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO;
+using QuanLiKhiThai.DAO.Interface;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -13,27 +14,33 @@ namespace QuanLiKhiThai
         private bool _isProcessing = false;
         private DateTime _lastButtonClickTime = DateTime.MinValue;
         private readonly TimeSpan _minimumTimeBetweenClicks = TimeSpan.FromSeconds(1);
+        private readonly IUserDAO _userDAO;
+        private readonly IVehicleDAO _vehicleDAO;
+        private readonly IInspectionAppointmentDAO _inspectionAppointmentDAO;
 
-        public ScheduleTestWindow()
+        public ScheduleTestWindow(IUserDAO userDAO, IVehicleDAO vehicleDAO, IInspectionAppointmentDAO inspectionAppointmentDAO)
         {
             InitializeComponent();
+            this._userDAO = userDAO;
+            this._vehicleDAO = vehicleDAO;
+            this._inspectionAppointmentDAO = inspectionAppointmentDAO;
             LoadData();
         }
 
         private void LoadData()
         {
             int ownerId = UserContext.Current.UserId;
-            List<Vehicle> vehicles = VehicleDAO.GetVehicleByOwner(ownerId);
+            List<Vehicle> vehicles = _vehicleDAO.GetVehicleByOwnerId(ownerId).ToList();
 
             // Filter out vehicles with pending appointments
             var vehiclesWithoutPendingAppointments = vehicles.Where(v =>
-                !InspectionAppointmentDAO.HasPendingAppointment(v.VehicleId)).ToList();
+                !_inspectionAppointmentDAO.HavePendingAppointment(v.VehicleId)).ToList();
 
             this.cbVehicles.ItemsSource = vehiclesWithoutPendingAppointments;
             this.cbVehicles.DisplayMemberPath = "PlateNumber";
             this.cbVehicles.SelectedValuePath = "VehicleId";
 
-            List<User> stations = UserDAO.GetUserByRole(Constants.Station);
+            List<User> stations = _userDAO.GetUserByRole(Constants.Station).ToList();
             var stationItems = stations.Select(s => new
             {
                 StationId = s.UserId,
@@ -96,7 +103,7 @@ namespace QuanLiKhiThai
                 }
 
                 Vehicle? selectedVehicle = (Vehicle)cbVehicles.SelectedItem;
-                User? selectedStation = UserDAO.GetUserById((int)cbStations.SelectedValue);
+                User? selectedStation = _userDAO.GetById((int)cbStations.SelectedValue);
 
                 if (selectedVehicle == null || selectedStation == null)
                 {
@@ -121,8 +128,7 @@ namespace QuanLiKhiThai
                     CreatedAt = DateTime.Now
                 };
 
-                UserDAO userDAO = new UserDAO();
-                userDAO.CreateAppointment(iAppointment, UserContext.Current, selectedStation, selectedVehicle, this);
+                _userDAO.CreateAppointment(iAppointment, UserContext.Current, selectedStation, selectedVehicle, this);
             }
             catch (Exception ex)
             {

@@ -1,5 +1,6 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO;
+using QuanLiKhiThai.DAO.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,9 +22,12 @@ namespace QuanLiKhiThai
     /// </summary>
     public partial class RegisterVehicle : Window
     {
-        public RegisterVehicle()
+        private readonly IVehicleDAO _vehicleDAO;
+
+        public RegisterVehicle(IVehicleDAO vehicleDAO)
         {
             InitializeComponent();
+            this._vehicleDAO = vehicleDAO;
         }
 
 
@@ -45,7 +49,7 @@ namespace QuanLiKhiThai
                 OwnerId = UserContext.Current.UserId
             };
 
-            if (VehicleDAO.AddVehicle(vehicle))
+            if (_vehicleDAO.Add(vehicle))
             {
                 MessageBox.Show("Vehicle registered successfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }

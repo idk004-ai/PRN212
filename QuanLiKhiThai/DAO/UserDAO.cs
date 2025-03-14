@@ -1,28 +1,22 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
 using QuanLiKhiThai.Context;
+using QuanLiKhiThai.DAO.Interface;
 using System.Windows;
 
 namespace QuanLiKhiThai.DAO
 {
-    internal class UserDAO
+    internal class UserDAO : IUserDAO
     {
-        public static List<User> GetUsers()
+
+        private readonly IInspectionAppointmentDAO _inspectionAppointmentDAO;
+
+        public UserDAO(IInspectionAppointmentDAO inspectionAppointmentDAO) 
         {
-            using (var db = new QuanLiKhiThaiContext())
-            {
-                return db.Users.ToList();
-            }
+            this._inspectionAppointmentDAO = inspectionAppointmentDAO;
         }
 
-        public static User? GetUserById(int userId)
-        {
-            using (var db = new QuanLiKhiThaiContext())
-            {
-                return db.Users.Find(userId);
-            }
-        }
-
-        internal static bool AddUser(User user)
+        bool IServiceDAO<User>.Add(User user)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -31,33 +25,11 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        internal static User? GetUserByEmail(string email)
-        {
-            using (var db = new QuanLiKhiThaiContext())
-            {
-                return db.Users.FirstOrDefault(u => u.Email == email);
-            }
-        }
-
-        internal static List<User> GetUserByRole(string role)
-        {
-            using (var db = new QuanLiKhiThaiContext())
-            {
-                return db.Users.Where(u => u.Role == role).ToList();
-            }
-        }
-
-        public bool CreateAppointment(
-            InspectionAppointment appointment,
-            UserContext owner,
-            User station,
-            Vehicle vehicle,
-            Window windowToClose = null
-            )
+        bool IUserDAO.CreateAppointment(InspectionAppointment appointment, UserContext owner, User station, Vehicle vehicle, Window windowToClose)
         {
             var operations = new Dictionary<string, Func<bool>>
             {
-                { "add appointment", () => InspectionAppointmentDAO.AddInspectionAppointment(appointment) }
+                { "add appointment", () => _inspectionAppointmentDAO.Add(appointment) }
             };
             Log logEntry = new Log
             {
@@ -79,16 +51,44 @@ namespace QuanLiKhiThai.DAO
             string errorMessage = "Failed to create appointment";
 
             bool result = TransactionHelper.ExecuteTransaction(operations, logEntry, notification, successMessage, errorMessage);
-            
+
             if (result && windowToClose != null)
             {
                 windowToClose.Close();
             }
 
             return result;
+
         }
 
-        public static List<User> GetInspectorInStation(int stationId)
+        bool IServiceDAO<User>.Delete(int id)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                var user = db.Users.Find(id);
+                if (user != null)
+                    db.Users.Remove(user);
+                return db.SaveChanges() > 0;
+            }
+        }
+
+        IEnumerable<User> IServiceDAO<User>.GetAll()
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Users.ToList();
+            }
+        }
+
+        User? IServiceDAO<User>.GetById(int id)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Users.Find(id);
+            }
+        }
+
+        IEnumerable<User> IUserDAO.GetInspectorsInStation(int stationId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -96,6 +96,33 @@ namespace QuanLiKhiThai.DAO
                     .Where(s => s.StationId == stationId && s.IsActive == true)
                     .Select(s => s.Inspector)
                     .ToList();
+            }
+        }
+
+        User? IUserDAO.GetUserByEmail(string email)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Users.FirstOrDefault(u => u.Email == email);
+            }
+        }
+
+        IEnumerable<User> IUserDAO.GetUserByRole(string role)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Users
+                    .Where(u => u.Role == role)
+                    .ToList();
+            }
+        }
+
+        bool IServiceDAO<User>.Update(User entity)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                db.Users.Update(entity);
+                return db.SaveChanges() > 0;
             }
         }
     }

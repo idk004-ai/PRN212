@@ -1,37 +1,62 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using QuanLiKhiThai.DAO.Interface;
 
 namespace QuanLiKhiThai.DAO
 {
-    class LogDAO
+    public class LogDAO : ILogDAO
     {
-        internal static bool AddLog(Log newLog)
+        bool IServiceDAO<Log>.Add(Log log)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
-                db.Logs.Add(newLog);
+                db.Logs.Add(log);
                 return db.SaveChanges() > 0;
             }
         }
 
-        public static List<Log> GetLogsSince(DateTime since)
+        bool IServiceDAO<Log>.Delete(int id)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                var log = db.Logs.Find(id);
+                if (log != null)
+                {
+                    db.Logs.Remove(log);
+                    return db.SaveChanges() > 0;
+                }
+                return false;
+            }
+        }
+
+        IEnumerable<Log> IServiceDAO<Log>.GetAll()
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Logs.Include(l => l.User).ToList();
+            }
+        }
+
+        Log? IServiceDAO<Log>.GetById(int id)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Logs.Include(l => l.User).FirstOrDefault(l => l.LogId == id);
+            }
+        }
+
+        IEnumerable<Log> ILogDAO.GetLogInDateRange(DateTime start, DateTime end)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
                 return db.Logs
-                    .Include(l => l.User) 
-                    .Where(l => l.Timestamp > since)
+                    .Include(l => l.User)
+                    .Where(l => l.Timestamp >= start && l.Timestamp <= end)
                     .OrderByDescending(l => l.Timestamp)
-                    .Distinct()
                     .ToList();
             }
         }
 
-        public static List<Log> GetLogsByUser(int userId, int take = 100)
+        IEnumerable<Log> ILogDAO.GetLogsByUser(int userId, int take)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -44,9 +69,22 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        public static List<Log> SearchLogs(string searchTerm, int take = 100)
+        IEnumerable<Log> ILogDAO.GetLogSince(DateTime since)
         {
-            if (string.IsNullOrEmpty(searchTerm))
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Logs
+                    .Include(l => l.User)
+                    .Where(l => l.Timestamp > since)
+                    .OrderByDescending(l => l.Timestamp)
+                    .Distinct()
+                    .ToList();
+            }
+        }
+
+        IEnumerable<Log> ILogDAO.SearchLog(string searchQuery, int take)
+        {
+            if (string.IsNullOrEmpty(searchQuery))
             {
                 return new List<Log>();
             }
@@ -55,22 +93,19 @@ namespace QuanLiKhiThai.DAO
             {
                 return db.Logs
                     .Include(l => l.User)
-                    .Where(l => l.Action.Contains(searchTerm))
+                    .Where(l => l.Action.Contains(searchQuery))
                     .OrderByDescending(l => l.Timestamp)
                     .Take(take)
                     .ToList();
             }
         }
 
-        public static List<Log> GetLogsInDateRange(DateTime start, DateTime end)
+        bool IServiceDAO<Log>.Update(Log entity)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
-                return db.Logs
-                    .Include(l => l.User)
-                    .Where(l => l.Timestamp >= start && l.Timestamp <= end)
-                    .OrderByDescending(l => l.Timestamp)
-                    .ToList();
+                db.Logs.Update(entity);
+                return db.SaveChanges() > 0;
             }
         }
     }

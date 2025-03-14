@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace QuanLiKhiThai.Context
+﻿namespace QuanLiKhiThai.Context
 {
-    internal class UserContext
+    public class UserContext
     {
         public int UserId { get; set; }
         public string FullName { get; set; }

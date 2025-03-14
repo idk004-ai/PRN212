@@ -1,4 +1,5 @@
 ﻿using QuanLiKhiThai.DAO;
+using QuanLiKhiThai.DAO.Interface;
 using QuanLiKhiThai.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -22,16 +23,18 @@ namespace QuanLiKhiThai
     public partial class VehicleDetailWindow : Window
     {
         private VehicleCheckViewModel _viewModel;
-        public VehicleDetailWindow(VehicleCheckViewModel viewModel)
+        private IVehicleDAO _vehicleDAO;
+        public VehicleDetailWindow(VehicleCheckViewModel viewModel, IVehicleDAO vehicleDAO)
         {
             InitializeComponent();
             this._viewModel = viewModel;
+            this._vehicleDAO = vehicleDAO;
             LoadData();
         }
 
         private void LoadData()
         {
-            var vehicle = VehicleDAO.GetVehicleByPlateNumber(_viewModel.PlateNumber);
+            var vehicle = _vehicleDAO.GetByPlateNumber(_viewModel.PlateNumber);
             if (vehicle == null)
             {
                 MessageBox.Show("Vehicle not found", "Error", MessageBoxButton.OK, MessageBoxImage.Error);

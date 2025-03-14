@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Collections.ObjectModel;
+using QuanLiKhiThai.DAO.Interface;
 
 namespace QuanLiKhiThai
 {
@@ -15,15 +16,20 @@ namespace QuanLiKhiThai
     public partial class InspectorVehicleListWindow : Window
     {
         private List<InspectionRecord> _allRecords = new List<InspectionRecord>();
+        private readonly IInspectionRecordDAO _inspectionRecordDAO;
+        private readonly INavigationService _navigationService;
 
-        public InspectorVehicleListWindow()
+        public InspectorVehicleListWindow(IInspectionRecordDAO inspectionRecordDAO, INavigationService navigationService)
         {
             InitializeComponent();
 
             // Set today's date as default
             dpFilterDate.SelectedDate = DateTime.Today;
+            this._inspectionRecordDAO = inspectionRecordDAO;
+            this._navigationService = navigationService;
 
             LoadData();
+            _navigationService = navigationService;
         }
 
         private void LoadData()
@@ -34,7 +40,7 @@ namespace QuanLiKhiThai
                 int inspectorId = UserContext.Current.UserId;
 
                 // Get all active inspection records assigned to this inspector
-                _allRecords = InspectionRecordDAO.GetTestingRecordsByInspectorId(inspectorId);
+                _allRecords = _inspectionRecordDAO.GetTestingRecordsByInspectorId(inspectorId);
 
                 // Apply date filter if selected
                 ApplyDateFilter();
@@ -104,8 +110,7 @@ namespace QuanLiKhiThai
             if (record != null)
             {
                 // Open the vehicle inspection details window
-                VehicleInspectionDetailsWindow detailsWindow = new VehicleInspectionDetailsWindow(record);
-                detailsWindow.ShowDialog();
+                _navigationService.NavigateTo<VehicleInspectionDetailsWindow, InspectionRecord>(record);
 
                 // Refresh data when dialog closes in case changes were made
                 LoadData();
@@ -117,8 +122,7 @@ namespace QuanLiKhiThai
             InspectionRecord? record = dgAssignedVehicles.SelectedItem as InspectionRecord;
             if (record != null)
             {
-                VehicleInspectionDetailsWindow detailsWindow = new VehicleInspectionDetailsWindow(record);
-                detailsWindow.ShowDialog();
+                _navigationService.NavigateTo<VehicleInspectionDetailsWindow, InspectionRecord>(record);
                 LoadData();
             }
         }
@@ -143,8 +147,7 @@ namespace QuanLiKhiThai
                     try
                     {
                         // Cancel inspection
-                        InspectionRecordDAO inspectorOperations = new InspectionRecordDAO();
-                        inspectorOperations.CancelInspection(
+                        _inspectionRecordDAO.CancelInspection(
                             record,
                             UserContext.Current,
                             record.Vehicle.PlateNumber,

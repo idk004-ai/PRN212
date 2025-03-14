@@ -1,5 +1,6 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO;
+using QuanLiKhiThai.DAO.Interface;
 using QuanLiKhiThai.ViewModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,16 +12,21 @@ namespace QuanLiKhiThai
     /// </summary>
     public partial class NeededCheckVehicleList : Window
     {
-        public NeededCheckVehicleList()
+        private readonly INavigationService _navigationService;
+        private readonly IVehicleDAO _vehicleDAO;
+
+        public NeededCheckVehicleList(INavigationService navigationService, IVehicleDAO vehicleDAO)
         {
             InitializeComponent();
+            this._navigationService = navigationService;
+            this._vehicleDAO = vehicleDAO;
             LoadData();
         }
 
         private void LoadData()
         {
             // TODO1: Get list of vehicles with pending appointments
-            List<Vehicle> vehicles = VehicleDAO.GetVehicleWithPendingAppointments(UserContext.Current.UserId);
+            List<Vehicle> vehicles = _vehicleDAO.GetVehicleWithPendingStatus(UserContext.Current.UserId).ToList();
 
             // Create ViewModels List
             List<VehicleCheckViewModel> vehicleCheckList = new List<VehicleCheckViewModel>();
@@ -45,8 +51,7 @@ namespace QuanLiKhiThai
 
             if (vehicleViewModel != null)
             {
-                VehicleDetailWindow vehicleDetailWindow = new VehicleDetailWindow(vehicleViewModel);
-                vehicleDetailWindow.Show();
+                _navigationService.NavigateTo<VehicleDetailWindow, VehicleCheckViewModel>(vehicleViewModel);
             }
         }
 
@@ -59,8 +64,7 @@ namespace QuanLiKhiThai
                 var vehicleViewModel = button?.CommandParameter as VehicleCheckViewModel;
                 if (vehicleViewModel != null)
                 {
-                    AssignInspectorWindow assignInspectorWindow = new AssignInspectorWindow(vehicleViewModel);
-                    assignInspectorWindow.ShowDialog();
+                    _navigationService.NavigateTo<AssignInspectorWindow, VehicleCheckViewModel>(vehicleViewModel);
                     LoadData();
                 }
 

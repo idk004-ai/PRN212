@@ -1,5 +1,6 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO;
+using QuanLiKhiThai.DAO.Interface;
 using QuanLiKhiThai.Helper;
 using System.Windows;
 using System.Windows.Input;
@@ -13,16 +14,23 @@ namespace QuanLiKhiThai
     {
         // create a tuple to store the user's information
         private (string FullName, string Email, string Password, string ConfirmPassword, string Phone, string Address) userInfo;
+        private readonly IUserDAO _userDAO;
+        private readonly LogsViewManager _logsViewManager;
+        private readonly INavigationService _navigationService;
 
+
+        public MainWindow(IUserDAO userDAO, LogsViewManager logsViewManager, INavigationService navigationService)
+        {
+            InitializeComponent();
+            _userDAO = userDAO;
+            _logsViewManager = logsViewManager;
+            _navigationService = navigationService;
+            LoadDataGridUser();
+        }
 
         void LoadDataGridUser()
         {
-            List<User> users = UserDAO.GetUsers();
-        }
-
-        public MainWindow()
-        {
-            InitializeComponent();
+            List<User> users = _userDAO.GetAll().ToList();
         }
 
         private bool HasAnyEmptyField()
@@ -58,7 +66,7 @@ namespace QuanLiKhiThai
                 return;
             }
 
-            if (UserDAO.GetUserByEmail(userInfo.Email) != null)
+            if (_userDAO.GetUserByEmail(userInfo.Email) != null)
             {
                 MessageBox.Show("Email already exists", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -69,43 +77,48 @@ namespace QuanLiKhiThai
                 FullName = userInfo.FullName,
                 Email = userInfo.Email,
                 Password = userInfo.Password,
-                Phone = userInfo.ConfirmPassword,
+                Phone = userInfo.Phone,
                 Address = userInfo.Address,
                 Role = Constants.Owner
             };
 
-            if (UserDAO.AddUser(user))
+            var operations = new Dictionary<string, Func<bool>>
             {
-                MessageBox.Show("Register successfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                { "Register new user", () => _userDAO.Add(user) }
+            };
 
-                // Set current user
-                UserContext.Current.UserId = user.UserId;
-                UserContext.Current.FullName = user.FullName;
-                UserContext.Current.Email = user.Email;
-                UserContext.Current.Role = user.Role;
+            Log logEntry = new Log
+            {
+                UserId = 1, // System id or Admin id
+                Action = $"New user registered: {user.Email} with role {Constants.Owner}",
+                Timestamp = DateTime.Now,
+            };
 
-                // Redirect to login window
-                Login loginWindow = new Login();
-                loginWindow.Show();
+            bool success = TransactionHelper.ExecuteTransaction(
+                operations,
+                logEntry,
+                notification: null,
+                successMessage: "Registration successful. Please log in with your new account",
+                errorMessage: "Registration failed");
+
+            if (success)
+            {
+                // Navigate to login
+                _navigationService.NavigateTo<Login>();
                 this.Close();
-            }
-            else
-            {
-                MessageBox.Show("Register failed", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void LoginTextBlock_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            Login loginWindow = new Login();
-            loginWindow.Show();
+            _navigationService.NavigateTo<Login>();
             this.Close();
         }
 
         private void LogsMenuItem_Click(object sender, RoutedEventArgs e)
         {
             // Mở logs window (sẽ kiểm tra quyền)
-            LogsViewManager.Instance.ShowLogsWindow();
+            _logsViewManager.ShowLogsWindow();
         }
 
     }

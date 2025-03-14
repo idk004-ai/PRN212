@@ -1,5 +1,6 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO;
+using QuanLiKhiThai.DAO.Interface;
 using System.Windows;
 using System.Windows.Media;
 
@@ -15,10 +16,13 @@ namespace QuanLiKhiThai
         private bool co2Pass = false;
         private bool hcPass = false;
 
-        public VehicleInspectionDetailsWindow(InspectionRecord record)
+        private readonly IInspectionRecordDAO _inspectionRecordDAO;
+
+        public VehicleInspectionDetailsWindow(InspectionRecord record, IInspectionRecordDAO inspectionRecordDAO)
         {
             InitializeComponent();
             _record = record;
+            this._inspectionRecordDAO = inspectionRecordDAO;
             LoadVehicleData();
             LoadExistingResults();
         }
@@ -181,8 +185,7 @@ namespace QuanLiKhiThai
                 }
 
                 // Save to database using transaction
-                InspectionRecordDAO inspectorOperations = new InspectionRecordDAO();
-                inspectorOperations.RecordInspectionResult(
+                _inspectionRecordDAO.RecordInspectionResult(
                     _record, 
                     UserContext.Current,
                     _record.Vehicle.PlateNumber, 
@@ -210,8 +213,7 @@ namespace QuanLiKhiThai
             {
                 try
                 {
-                    InspectionRecordDAO inspectorOperations = new InspectionRecordDAO();
-                    inspectorOperations.CancelInspection(
+                    _inspectionRecordDAO.CancelInspection(
                         _record,
                         UserContext.Current,
                         _record.Vehicle.PlateNumber,

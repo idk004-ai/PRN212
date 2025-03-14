@@ -1,32 +1,59 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuanLiKhiThai.Context;
+using QuanLiKhiThai.DAO.Interface;
 using System.Windows;
 
 namespace QuanLiKhiThai.DAO
 {
-    class InspectionRecordDAO
+    class InspectionRecordDAO : IInspectionRecordDAO
     {
-        public static bool AddInspectionRecord(InspectionRecord inspectionRecord)
+        private readonly IInspectionAppointmentDAO _inspectionAppointmentDAO;
+
+        public InspectionRecordDAO(IInspectionAppointmentDAO inspectionAppointmentDAO)
+        {
+            this._inspectionAppointmentDAO = inspectionAppointmentDAO;
+        }
+
+        bool IServiceDAO<InspectionRecord>.Add(InspectionRecord entity)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
-                db.InspectionRecords.Add(inspectionRecord);
+                db.InspectionRecords.Add(entity);
                 return db.SaveChanges() > 0;
             }
         }
 
-        internal static InspectionRecord? GetLastRecordByVehicleId(int vehicleId)
+        bool IServiceDAO<InspectionRecord>.Delete(int id)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
-                return db.InspectionRecords
-                    .Where(i => i.VehicleId == vehicleId)
-                    .OrderByDescending(i => i.InspectionDate)
-                    .FirstOrDefault();
+                var entity = db.InspectionRecords.Find(id);
+                if (entity != null)
+                {
+                    db.InspectionRecords.Remove(entity);
+                    return db.SaveChanges() > 0;
+                }
+                return false;
             }
         }
 
-        public static InspectionRecord? GetCurrentRecordByVehicleId(int vehicleId)
+        IEnumerable<InspectionRecord> IServiceDAO<InspectionRecord>.GetAll()
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.InspectionRecords.ToList();
+            }
+        }
+
+        InspectionRecord? IServiceDAO<InspectionRecord>.GetById(int id)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.InspectionRecords.Find(id);
+            }
+        }
+
+        InspectionRecord? IInspectionRecordDAO.GetCurrentRecordByVehicleId(int vehicleId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -39,8 +66,18 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
+        InspectionRecord? IInspectionRecordDAO.GetLastRecordByVehicleId(int vehicleId)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.InspectionRecords
+                    .Where(i => i.VehicleId == vehicleId)
+                    .OrderByDescending(i => i.InspectionDate)
+                    .FirstOrDefault();
+            }
+        }
 
-        internal static InspectionRecord? GetRecordByAppointment(int appointmentId)
+        InspectionRecord? IInspectionRecordDAO.GetRecordByAppointment(int appointmentId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -50,7 +87,7 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        public static List<InspectionRecord> GetTestingRecordsByInspectorId(int inspectorId)
+        List<InspectionRecord> IInspectionRecordDAO.GetTestingRecordsByInspectorId(int inspectorId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -64,91 +101,83 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        public bool UpdateRecord(InspectionRecord record)
+        bool IServiceDAO<InspectionRecord>.Update(InspectionRecord entity)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
-                db.InspectionRecords.Update(record);
+                db.InspectionRecords.Update(entity);
                 return db.SaveChanges() > 0;
             }
         }
 
-        public bool RecordInspectionResult(
-                InspectionRecord record,
-                UserContext inspector,
-                string vehiclePlateNumber,
-                string stationFullName,
-                Window windowToClose = null
-            )
+        bool IInspectionRecordDAO.AssignInspector(InspectionRecord record, InspectionAppointment appointment, User inspector, string vehiclePlateNumber, int stationId, string stationFullName, Window windowToClose)
         {
             var operations = new Dictionary<string, Func<bool>>
             {
-                { "update record", () => UpdateRecord(record) },
-                { "update appointment", () => { 
+                { "add record", () => ((IServiceDAO<InspectionRecord>)this).Add(record) },
+                { "update appointment", () => _inspectionAppointmentDAO.Update(appointment) }
+            };
+            Log logEntry = new Log
+            {
+                UserId = stationId,
+                Action = $"Assigned inspector {inspector.FullName} to vehicle {vehiclePlateNumber}",
+                Timestamp = DateTime.Now
+            };
+            Notification notification = new Notification
+            {
+                UserId = inspector.UserId, // Should be sending to the inspector, not back to the station
+                Message = $"You have been assigned to inspect vehicle {vehiclePlateNumber} at {stationFullName}",
+                SentDate = DateTime.Now,
+                IsRead = false
+            };
+            string successMessage = $"Inspector {inspector.FullName} has been assigned to vehicle {vehiclePlateNumber}.";
+            string errorMessage = "Failed to assign inspector to vehicle";
+            bool result = TransactionHelper.ExecuteTransaction(operations, logEntry, notification, successMessage, errorMessage);
+            if (result && windowToClose != null)
+            {
+                windowToClose.Close();
+            }
+            return result;
+        }
+
+        bool IInspectionRecordDAO.RecordInspectionResult(InspectionRecord record, UserContext inspector, string vehiclePlateNumber, string stationFullName, Window windowToClose)
+        {
+            var operations = new Dictionary<string, Func<bool>>
+            {
+                { "update record", () => ((IServiceDAO<InspectionRecord>)this).Update(record) },
+                { "update appointment", () => {
                     if (!InspectionAppointmentValidation.ValidateDataConsistency(record.Appointment, Constants.STATUS_COMPLETED))
                     {
                         return false;
                     }
                     record.Appointment.Status = Constants.STATUS_COMPLETED;
-                    return InspectionAppointmentDAO.UpdateAppointment(record.Appointment);
+                    return _inspectionAppointmentDAO.Update(record.Appointment);
                 }}
             };
-
             Log logEntry = new Log
             {
                 UserId = inspector.UserId,
-                Action = $"Recorded inspection result for vehicle {vehiclePlateNumber}",
+                Action = $"Recorded inspection result for vehicle {vehiclePlateNumber} at {stationFullName}",
                 Timestamp = DateTime.Now
             };
-
             Notification notification = new Notification
             {
-                UserId = inspector.UserId,
-                Message = $"You have recorded inspection result for vehicle {vehiclePlateNumber} at {stationFullName}",
+                UserId = record.Vehicle.OwnerId,
+                Message = $"Your vehicle {vehiclePlateNumber} has been inspected at {stationFullName}.",
                 SentDate = DateTime.Now,
                 IsRead = false
             };
-
-            string successMessage = $"Inspection result for vehicle {vehiclePlateNumber} has been recorded at {stationFullName}.";
+            string successMessage = $"Inspection result for vehicle {vehiclePlateNumber} has been recorded.";
             string errorMessage = "Failed to record inspection result";
-
-            bool result = TransactionHelper.ExecuteTransaction(
-                operations,
-                logEntry,
-                notification,
-                successMessage,
-                errorMessage
-            );
-
+            bool result = TransactionHelper.ExecuteTransaction(operations, logEntry, notification, successMessage, errorMessage);
             if (result && windowToClose != null)
             {
                 windowToClose.Close();
             }
-
             return result;
         }
 
-        public bool DeleteRecord(int recordId)
-        {
-            using (var db = new QuanLiKhiThaiContext())
-            {
-                var record = db.InspectionRecords.Find(recordId);
-                if (record == null)
-                {
-                    return false;
-                }
-                db.InspectionRecords.Remove(record);
-                return db.SaveChanges() > 0;
-            }
-        }
-
-        public bool CancelInspection(
-                InspectionRecord inspectionRecord,
-                UserContext inspector,
-                string vehiclePlateNumber,
-                string stationFullName,
-                Window windowToClose = null
-            )
+        bool IInspectionRecordDAO.CancelInspection(InspectionRecord inspectionRecord, UserContext inspector, string vehiclePlateNumber, string stationFullName, Window windowToClose)
         {
             if (inspectionRecord == null)
             {
@@ -158,8 +187,9 @@ namespace QuanLiKhiThai.DAO
             }
 
             int appointmentId = inspectionRecord.AppointmentId;
-            var appointment = InspectionAppointmentDAO.GetAppointmentById(appointmentId);
-            if (appointment == null) {
+            var appointment = _inspectionAppointmentDAO.GetById(appointmentId);
+            if (appointment == null)
+            {
                 MessageBox.Show("Cannot cancel inspection. No appointment found for this record.", "Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
@@ -167,14 +197,14 @@ namespace QuanLiKhiThai.DAO
 
             var operations = new Dictionary<string, Func<bool>>
             {
-                {"delete record", () => DeleteRecord(inspectionRecord.RecordId) },
+                {"delete record", () => ((IServiceDAO<InspectionRecord>)this).Delete(inspectionRecord.RecordId) },
                 {"update appointment", () =>
                 {
-                    var updatedAppointment = InspectionAppointmentDAO.GetAppointmentById(appointmentId);
+                    var updatedAppointment = _inspectionAppointmentDAO.GetById(appointmentId);
                     if (updatedAppointment == null) return false;
                     if (!InspectionAppointmentValidation.ValidateDataConsistency(updatedAppointment, Constants.STATUS_CANCELLED)) return false;
                     updatedAppointment.Status = Constants.STATUS_CANCELLED;
-                    return InspectionAppointmentDAO.UpdateAppointment(updatedAppointment);
+                    return _inspectionAppointmentDAO.Update(updatedAppointment);
                 } }
             };
 
@@ -184,7 +214,7 @@ namespace QuanLiKhiThai.DAO
                 Action = $"Cancelled inspection for vehicle {vehiclePlateNumber}",
                 Timestamp = DateTime.Now
             };
-			
+
 
             Notification notification = new Notification
             {
@@ -211,6 +241,22 @@ namespace QuanLiKhiThai.DAO
             }
 
             return result;
+
+        }
+
+        List<InspectionRecord> IInspectionRecordDAO.GetRecordInDateRange(DateTime startDate, DateTime endDate)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.InspectionRecords
+                    .Include(ir => ir.Vehicle)
+                    .Include(ir => ir.Vehicle.Owner)
+                    .Include(ir => ir.Station)
+                    .Include(ir => ir.Appointment)
+                    .Include(ir => ir.Inspector)
+                    .Where(ir => ir.InspectionDate >= startDate && ir.InspectionDate <= endDate)
+                    .ToList();
+            }
         }
     }
 }

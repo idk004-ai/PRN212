@@ -1,5 +1,7 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO;
+using QuanLiKhiThai.DAO.Interface;
+using QuanLiKhiThai.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,8 +23,13 @@ namespace QuanLiKhiThai
     /// </summary>
     public partial class Login : Window
     {
-        public Login()
+        private readonly IUserDAO _userDAO;
+        private readonly INavigationService _navigationService;
+
+        public Login(IUserDAO userDAO, INavigationService navigationService)
         {
+            this._userDAO = userDAO;
+            this._navigationService = navigationService;
             InitializeComponent();
         }
 
@@ -33,12 +40,13 @@ namespace QuanLiKhiThai
             string password = this.txtPassword.Password;
 
 
-            User? user = UserDAO.GetUserByEmail(email);
+            User? user = _userDAO.GetUserByEmail(email);
             if (user == null || !password.Equals(user.Password))
             {
                 MessageBox.Show("Email or Password is invalid", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
 
             // Save user info to UserContext
             UserContext.Current.UserId = user.UserId;
@@ -46,23 +54,18 @@ namespace QuanLiKhiThai
             UserContext.Current.Email = user.Email;
             UserContext.Current.Role = user.Role;
 
-
-            // redirect base on the user's role
             switch (user.Role)
             {
                 case Constants.Owner:
-                    Home home = new Home();
-                    home.Show();
+                    _navigationService.NavigateTo<OwnerHome>();
                     this.Close();
                     break;
                 case Constants.Station:
-                    NeededCheckVehicleList neededCheckVehicleList = new NeededCheckVehicleList();
-                    neededCheckVehicleList.Show();
+                    _navigationService.NavigateTo<StationHome>();
                     this.Close();
                     break;
                 case Constants.Inspector:
-                    InspectorVehicleListWindow inspectorVehicleList = new InspectorVehicleListWindow();
-                    inspectorVehicleList.Show();
+                    _navigationService.NavigateTo<InspectorVehicleListWindow>();
                     this.Close();
                     break;
             }
@@ -70,8 +73,7 @@ namespace QuanLiKhiThai
 
         private void RegisterTextBlock_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            MainWindow registerWindow = new MainWindow();
-            registerWindow.Show();
+            _navigationService.NavigateTo<MainWindow>();
             this.Close();
         }
     }

@@ -1,4 +1,5 @@
 ﻿using QuanLiKhiThai.DAO;
+using QuanLiKhiThai.DAO.Interface;
 using QuanLiKhiThai.Helper;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,10 +10,12 @@ namespace QuanLiKhiThai
     public partial class LogsMonitorWindow : Window
     {
         private readonly LogMonitorHelper _logMonitor;
+        private readonly ILogDAO _logDAO;
 
-        public LogsMonitorWindow()
+        public LogsMonitorWindow(LogMonitorHelper logMonitorHelper, ILogDAO logDAO)
         {
-            _logMonitor = LogMonitorHelper.Instance;
+            _logMonitor = logMonitorHelper;
+            this._logDAO = logDAO;
             
             InitializeComponent();
 
@@ -100,7 +103,7 @@ namespace QuanLiKhiThai
                 return;
             }
 
-            var logs = await Task.Run(() => LogDAO.SearchLogs(searchTerm));
+            List<Log> logs = await Task.Run(() => _logDAO.SearchLog(searchTerm).ToList());
             if (_logMonitor.RecentLogs != null)
             {
                 _logMonitor.RecentLogs.Clear();

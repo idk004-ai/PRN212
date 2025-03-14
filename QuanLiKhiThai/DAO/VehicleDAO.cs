@@ -1,15 +1,61 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using QuanLiKhiThai.DAO.Interface;
 
 namespace QuanLiKhiThai.DAO
 {
-    internal class VehicleDAO
+    internal class VehicleDAO : IVehicleDAO
     {
-        public static List<Vehicle> GetVehicleByOwner(int ownerId)
+        bool IServiceDAO<Vehicle>.Add(Vehicle entity)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                db.Add(entity);
+                return db.SaveChanges() > 0;
+            }
+        }
+
+        bool IServiceDAO<Vehicle>.Delete(int id)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                var vehicle = db.Vehicles.Find(id);
+                if (vehicle != null)
+                {
+                    db.Vehicles.Remove(vehicle);
+                    return db.SaveChanges() > 0;
+                }
+                return false;
+            }
+        }
+
+        IEnumerable<Vehicle> IServiceDAO<Vehicle>.GetAll()
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Vehicles.ToList();
+            }
+        }
+
+        Vehicle? IServiceDAO<Vehicle>.GetById(int id)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Vehicles.Find(id);
+            } 
+        }
+
+        Vehicle? IVehicleDAO.GetByPlateNumber(string plateNumber)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.Vehicles
+                    .Include(v => v.Owner)
+                    .Include(v => v.InspectionRecords)
+                    .FirstOrDefault(v => v.PlateNumber == plateNumber);
+            }
+        }
+
+        IEnumerable<Vehicle> IVehicleDAO.GetVehicleByOwnerId(int ownerId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -21,16 +67,20 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        internal static bool AddVehicle(Vehicle vehicle)
+        Vehicle? IVehicleDAO.GetVehicleByStationId(int stationId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
-                db.Vehicles.Add(vehicle);
-                return db.SaveChanges() > 0;
+                return db.InspectionAppointments
+                    .Where(a => a.StationId == stationId)
+                    .Include(a => a.Vehicle)
+                    .Include(a => a.Vehicle.Owner)
+                    .Select(a => a.Vehicle)
+                    .FirstOrDefault();
             }
         }
 
-        public static List<Vehicle> GetVehicleWithPendingAppointments(int stationId)
+        IEnumerable<Vehicle> IVehicleDAO.GetVehicleWithPendingStatus(int stationId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -43,25 +93,12 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        public static Vehicle? GetVehicleByPlateNumber(string plateNumber)
+        bool IServiceDAO<Vehicle>.Update(Vehicle entity)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
-                return db.Vehicles
-                    .Include(v => v.Owner)
-                    .Include(v => v.InspectionRecords)
-                    .FirstOrDefault(v => v.PlateNumber == plateNumber);
-            }
-        }
-
-        internal static Vehicle? GetVehicleById(int vehicleId)
-        {
-            using (var db = new QuanLiKhiThaiContext())
-            {
-                return db.Vehicles
-                    .Include(v => v.Owner)
-                    .Include(v => v.InspectionRecords)
-                    .FirstOrDefault(v => v.VehicleId == vehicleId);
+                db.Vehicles.Update(entity);
+                return db.SaveChanges() > 0;
             }
         }
     }

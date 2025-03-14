@@ -1,33 +1,22 @@
 ﻿using QuanLiKhiThai.DAO;
+using QuanLiKhiThai.DAO.Interface;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 namespace QuanLiKhiThai.Helper;
 
-class LogMonitorHelper : INotifyPropertyChanged
+public class LogMonitorHelper : INotifyPropertyChanged
 {
-    private static LogMonitorHelper? _instance;
     private CancellationTokenSource? _cancellationTokenSource;
-    private Task _monitoringTask;
+    private Task? _monitoringTask;
     private readonly object _logsLock = new object();
     private ObservableCollection<Log> _recentLogs;
     private DateTime _lastCheckTime;
     private bool _isMonitoring;
     private int _refreshIntervalSeconds = 5;
+    private readonly ILogDAO _logDAO;
 
     public event PropertyChangedEventHandler? PropertyChanged;
-
-    public static LogMonitorHelper Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                _instance = new LogMonitorHelper();
-            }
-            return _instance;
-        }
-    }
 
     public ObservableCollection<Log> RecentLogs
     {
@@ -59,10 +48,11 @@ class LogMonitorHelper : INotifyPropertyChanged
         }
     }
 
-    private LogMonitorHelper()
+    public LogMonitorHelper(ILogDAO logDAO)
     {
         _recentLogs = new ObservableCollection<Log>();
         _lastCheckTime = DateTime.Now.AddDays(-1);
+        this._logDAO = logDAO;
     }
 
     public void StartMonitoring()
@@ -119,7 +109,7 @@ class LogMonitorHelper : INotifyPropertyChanged
 
     public async Task RefreshLogsAsync(bool clearExistingLogs = false)
     {
-        List<Log> newLogs = await Task.Run(() => LogDAO.GetLogsSince(_lastCheckTime));
+        List<Log> newLogs = await Task.Run(() => _logDAO.GetLogSince(_lastCheckTime).ToList());
 
         if (newLogs.Count > 0)
         {

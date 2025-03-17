@@ -43,6 +43,8 @@ namespace QuanLiKhiThai
             services.AddTransient<Login>();
             services.AddTransient<OwnerHome>();
             services.AddTransient<StationHome>();
+            services.AddTransient<PoliceHomeWindow>();
+            services.AddTransient<VehicleLookupWindow>();
             services.AddTransient<VehicleHistory>();
             services.AddTransient<RegisterVehicle>();
             services.AddTransient<ScheduleTestWindow>();

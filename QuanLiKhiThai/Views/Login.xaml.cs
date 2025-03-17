@@ -2,6 +2,7 @@
 using QuanLiKhiThai.DAO;
 using QuanLiKhiThai.DAO.Interface;
 using QuanLiKhiThai.Helper;
+using QuanLiKhiThai.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,6 +68,13 @@ namespace QuanLiKhiThai
                 case Constants.Inspector:
                     _navigationService.NavigateTo<InspectorVehicleListWindow>();
                     this.Close();
+                    break;
+                case Constants.Police:
+                    _navigationService.NavigateTo<PoliceHomeWindow>();
+                    this.Close();
+                    break;
+                default:
+                    MessageBox.Show($"Unsupported role: {user.Role}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     break;
             }
         }

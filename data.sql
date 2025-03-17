@@ -45,6 +45,20 @@ VALUES
     ('Harbor Vehicle Inspection', 'appointments@harborinspect.com', 'hashed_password_station9', 'Station', '(555) 901-2345', '579 Port Road, Waterfront, Ocean City 90009'),
     ('Mountain View Auto Check', 'info@mountainviewcheck.org', 'hashed_password_station10', 'Station', '(555) 012-3456', '864 Summit Way, Highland District, Peak Town 10010');
 
+	-- SQL script to insert dummy data into Users table (Police role)
+INSERT INTO Users (FullName, Email, Password, Role, Phone, Address)
+VALUES 
+    ('Thomas Reynolds', 'thomas.reynolds@police.gov', 'hashed_password_pol1', 'Police', '(555) 111-3333', '101 Enforcement Street, Unit 201, Justice City, NY 10005'),
+    ('Rebecca Chen', 'rebecca.chen@police.gov', 'hashed_password_pol2', 'Police', '(555) 222-4444', '202 Security Avenue, Apartment 3C, Safetown, CA 94103'),
+    ('Marcus Johnson', 'marcus.johnson@police.gov', 'hashed_password_pol3', 'Police', '(555) 333-5555', '303 Protection Road, Suite 105, Law City, TX 78701'),
+    ('Natasha Rodriguez', 'natasha.rodriguez@police.gov', 'hashed_password_pol4', 'Police', '(555) 444-6666', '404 Badge Boulevard, Building 7, Order Heights, FL 33101'),
+    ('Kevin Park', 'kevin.park@police.gov', 'hashed_password_pol5', 'Police', '(555) 555-7777', '505 Patrol Lane, Floor 2, Guardian Springs, WA 98104'),
+    ('Amelia Washington', 'amelia.washington@police.gov', 'hashed_password_pol6', 'Police', '(555) 666-8888', '606 Authority Drive, Suite 404, Officer Hills, IL 60611'),
+    ('Omar Hassan', 'omar.hassan@police.gov', 'hashed_password_pol7', 'Police', '(555) 777-9999', '707 Precinct Place, Unit 5B, Shield City, MI 48226'),
+    ('Priya Sharma', 'priya.sharma@police.gov', 'hashed_password_pol8', 'Police', '(555) 888-0000', '808 Duty Court, House 12, Service Town, CO 80202'),
+    ('Gabriel Santos', 'gabriel.santos@police.gov', 'hashed_password_pol9', 'Police', '(555) 999-1111', '909 Force Street, Apartment 6D, Command City, GA 30303'),
+    ('Zoe Williams', 'zoe.williams@police.gov', 'hashed_password_pol10', 'Police', '(555) 000-2222', '1010 Regulation Road, Office 303, Law Enforcement Valley, PA 19107');
+
 -- SQL script để gán Inspector cho các Station
 -- Giả định:
 -- - Users với role 'Inspector' có UserID từ 11-20

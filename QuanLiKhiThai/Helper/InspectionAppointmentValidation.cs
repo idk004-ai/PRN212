@@ -12,6 +12,22 @@ namespace QuanLiKhiThai.Context
             try
             {
                 var inspectionRecordDAO = App.GetService<IInspectionRecordDAO>();
+
+                // Check if the vehicle has any ongoing inspection (Testing status)
+                InspectionRecord? currentRecord = inspectionRecordDAO.GetCurrentRecordByVehicleId(vehicleId);
+                if (currentRecord != null && currentRecord.Result == Constants.RESULT_TESTING)
+                {
+                    // Get station info to display in the message
+                    User? station = currentRecord.Station;
+                    string stationInfo = station != null ? $" at {station.FullName}" : "";
+
+                    string errorMessage = $"This vehicle is currently undergoing inspection{stationInfo}. " +
+                                        $"Please wait for the inspection to be completed before scheduling a new appointment.";
+                    LogValidationError(errorMessage, null);
+                    MessageBox.Show(errorMessage, "Vehicle In Testing Process", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
+                }
+
                 InspectionRecord? lastRecord = inspectionRecordDAO.GetLastRecordByVehicleId(vehicleId);
                 if (lastRecord == null)
                     return true;
@@ -22,13 +38,6 @@ namespace QuanLiKhiThai.Context
                 if (lastRecord.Result == Constants.RESULT_PASSED)
                 {
                     DateTime? lastInspectionDate = lastRecord.InspectionDate;
-                    if (!lastInspectionDate.HasValue)
-                    {
-                        string errorMessage = "Previous inspection record is missing inspection date.";
-                        LogValidationError(errorMessage, null);
-                        MessageBox.Show(errorMessage, "Data Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return true; // Allow inspection due to data inconsistency
-                    }
 
                     var inspectionAppointmentDAO = App.GetService<IInspectionAppointmentDAO>();
 
@@ -138,7 +147,7 @@ namespace QuanLiKhiThai.Context
             {
                 var inspectionRecordDAO = App.GetService<IInspectionRecordDAO>();
 
-                // TODO1: Check whether the status of the first appointment is "Pending"
+                // Check whether the status of the first appointment is "Pending"
                 if (appointment.Status != Constants.STATUS_PENDING)
                 {
                     string errorMessage = "Cannot create assignment. The appointment is not in Pending status.";
@@ -147,7 +156,7 @@ namespace QuanLiKhiThai.Context
                     return false;
                 }
 
-                // TODO2: Check whether the record is already assigned
+                // Check whether the record is already assigned
                 if (inspectionRecordDAO.GetRecordByAppointment(appointment.AppointmentId) != null)
                 {
                     string errorMessage = "Cannot create assignment. The vehicle is already assigned to another inspector.";
@@ -259,7 +268,7 @@ namespace QuanLiKhiThai.Context
                 var record = inspectionRecordDAO.GetRecordByAppointment(appointment.AppointmentId);
                 string status = newStatus ?? appointment.Status;
 
-                // TODO1: Pending/Cancelled appointments should not have records
+                // Pending/Cancelled appointments should not have records
                 if ((status == Constants.STATUS_PENDING || status == Constants.STATUS_CANCELLED) && record != null)
                 {
                     string errorMessage = $"Data inconsistency: {status} appointments should not have records. AppointmentId: {appointment.AppointmentId}, Status: {status}";
@@ -268,7 +277,7 @@ namespace QuanLiKhiThai.Context
                     return false;
                 }
 
-                // TODO2: Assigned appointments should have records but not completed
+                // Assigned appointments should have records but not completed
                 if (status == Constants.STATUS_ASSIGNED && (record?.Result == Constants.RESULT_PASSED || record?.Result == Constants.RESULT_FAILED))
                 {
                     string errorMessage = $"Data inconsistency: Assigned appointments shouldn't have final inspection results yet. AppointmentId: {appointment.AppointmentId}, Status: {status}";
@@ -277,7 +286,7 @@ namespace QuanLiKhiThai.Context
                     return false;
                 }
 
-                // TODO3: Completed appointments should have records with final results
+                // Completed appointments should have records with final results
                 if (status == Constants.STATUS_COMPLETED && (record == null || record.Result == Constants.RESULT_TESTING))
                 {
                     string errorMessage = $"Data inconsistency: Completed appointments should have final inspection results. AppointmentId: {appointment.AppointmentId}, Status: {status}";

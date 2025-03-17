@@ -1,0 +1,253 @@
+﻿<Window x:Class="QuanLiKhiThai.Views.VehicleLookupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:QuanLiKhiThai.Views"
+        mc:Ignorable="d"
+        Title="Vehicle Lookup - Emissions Inspection System" 
+        Height="650" Width="900"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#3F51B5" Padding="20,15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Vertical">
+                    <TextBlock Text="VEHICLE LOOKUP" 
+                               FontSize="22" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Check vehicle inspection status through license plate" 
+                               FontSize="14" Foreground="White" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <Button Grid.Column="1" x:Name="btnBack" 
+                        Content="BACK" Padding="15,8" 
+                        Background="#2C3E50" Foreground="White" 
+                        BorderThickness="0" Click="btnBack_Click"/>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Search Section -->
+            <Border Grid.Row="0" Background="White" BorderBrush="#DDDDDD" 
+                    BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Enter License Plate Number" 
+                               FontWeight="SemiBold" FontSize="16" Margin="0,0,0,15"/>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Grid.Column="0" x:Name="txtPlateNumber" 
+                                 FontSize="16" Padding="10" Margin="0,0,10,0"
+                                 Text="" MaxLength="20"/>
+
+                        <Button Grid.Column="1" x:Name="btnSearch" 
+                                Content="FIND VEHICLE" Padding="15,10" 
+                                Background="#2196F3" Foreground="White" 
+                                FontWeight="SemiBold" BorderThickness="0"
+                                Click="btnSearch_Click"/>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- Results Section -->
+            <Border Grid.Row="1" Background="White" BorderBrush="#DDDDDD" 
+                    BorderThickness="1" CornerRadius="8" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#F5F5F5" Padding="20,15"
+                            BorderBrush="#DDDDDD" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Vehicle Information" 
+                                       FontSize="16" FontWeight="SemiBold"/>
+
+                            <TextBlock Grid.Column="1" x:Name="txtSearchStatus" 
+                                       Text="Enter a license plate number to search" 
+                                       Foreground="#757575"/>
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="1" x:Name="resultsGrid" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Vehicle Information -->
+                        <Border Grid.Column="0" Padding="20">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Text="VEHICLE DETAILS" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                                <Grid Grid.Row="1">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="License Plate:" FontWeight="SemiBold" Margin="0,5"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtDisplayPlateNumber" Text="" Margin="0,5"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Brand:" FontWeight="SemiBold" Margin="0,5"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="txtBrand" Text="" Margin="0,5"/>
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Model:" FontWeight="SemiBold" Margin="0,5"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" x:Name="txtModel" Text="" Margin="0,5"/>
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Year:" FontWeight="SemiBold" Margin="0,5"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="1" x:Name="txtYear" Text="" Margin="0,5"/>
+
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Engine Number:" FontWeight="SemiBold" Margin="0,5"/>
+                                    <TextBlock Grid.Row="4" Grid.Column="1" x:Name="txtEngineNumber" Text="" Margin="0,5"/>
+
+                                    <Border Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" 
+                                            BorderBrush="#DDDDDD" BorderThickness="0,1,0,0" Margin="0,10,0,10"/>
+
+                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Owner Name:" FontWeight="SemiBold" Margin="0,5"/>
+                                    <TextBlock Grid.Row="6" Grid.Column="1" x:Name="txtOwnerName" Text="" Margin="0,5"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <!-- Inspection Information -->
+                        <Border Grid.Column="1" Background="#F9F9F9" Padding="20">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Text="LATEST INSPECTION RESULTS" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                                <!-- Inspection Status -->
+                                <Border Grid.Row="1" Padding="15" Margin="0,0,0,15" x:Name="inspectionStatusBorder"
+                                        Background="#E3F2FD" CornerRadius="5">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="Status: " FontWeight="Bold"/>
+                                        <TextBlock Grid.Column="1" x:Name="txtInspectionStatus" Text="No inspection records found" 
+                                                   Foreground="#757575"/>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Inspection Details -->
+                                <Grid Grid.Row="2" x:Name="inspectionDetailsGrid">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Inspection Date:" FontWeight="SemiBold" Margin="0,5"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtInspectionDate" Text="N/A" Margin="0,5"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Station:" FontWeight="SemiBold" Margin="0,5"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="txtStation" Text="N/A" Margin="0,5"/>
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Inspector:" FontWeight="SemiBold" Margin="0,5"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" x:Name="txtInspector" Text="N/A" Margin="0,5"/>
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="CO2 Level:" FontWeight="SemiBold" Margin="0,5"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="1" x:Name="txtCO2Level" Text="N/A" Margin="0,5"/>
+
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="HC Level:" FontWeight="SemiBold" Margin="0,5"/>
+                                    <TextBlock Grid.Row="4" Grid.Column="1" x:Name="txtHCLevel" Text="N/A" Margin="0,5"/>
+
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Comments:" FontWeight="SemiBold" Margin="0,5"/>
+                                    <TextBlock Grid.Row="5" Grid.Column="1" x:Name="txtComments" Text="N/A" 
+                                               TextWrapping="Wrap" Margin="0,5"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- No Results Message -->
+                    <TextBlock Grid.Row="1" x:Name="txtNoResults" 
+                               Text="No vehicle information to display. Enter a license plate number and click Search." 
+                               TextAlignment="Center" VerticalAlignment="Center" 
+                               Foreground="#757575" Margin="20" TextWrapping="Wrap"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="#F5F5F5" Padding="20,15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="© 2025 - Emissions Inspection Management System" 
+                           VerticalAlignment="Center"/>
+
+                <Button Grid.Column="1" x:Name="btnReport" 
+                        Content="REPORT VIOLATION" Padding="15,8" 
+                        Background="#F44336" Foreground="White" 
+                        BorderThickness="0" Click="btnReport_Click"
+                        Visibility="Collapsed"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
+

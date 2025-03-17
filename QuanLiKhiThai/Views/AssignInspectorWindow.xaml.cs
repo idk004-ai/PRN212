@@ -30,6 +30,7 @@ namespace QuanLiKhiThai
         private readonly IVehicleDAO _vehicleDAO;
         private readonly IInspectionAppointmentDAO _inspectionAppointmentDAO;
         private readonly IInspectionRecordDAO _inspectionRecordDAO;
+        public bool AssignmentSuccess { get; private set; } = false;
 
         public AssignInspectorWindow(VehicleCheckViewModel vehicleViewModel, IUserDAO userDAO, IVehicleDAO vehicleDAO, IInspectionAppointmentDAO inspectionAppointmentDAO, IInspectionRecordDAO inspectionRecordDAO)
         {
@@ -189,6 +190,10 @@ namespace QuanLiKhiThai
                     {
                         MessageBox.Show("Failed to assign inspector to vehicle", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         EnableAllAssignButtons();
+                    }
+                    else
+                    {
+                        AssignmentSuccess = true;
                     }
                 }
                 else

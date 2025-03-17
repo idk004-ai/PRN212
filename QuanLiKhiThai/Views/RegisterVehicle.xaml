@@ -8,6 +8,7 @@
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Plate Number" Width="100" VerticalAlignment="Center"/>
                 <TextBox Width="200" VerticalAlignment="Center" Name="txtPlateNumber"/>
+                <TextBlock Text="Format: 43A-12345" Margin="10,0,0,0" Foreground="Gray" VerticalAlignment="Center"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Brand" Width="100" VerticalAlignment="Center"/>
@@ -19,7 +20,8 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Manufacture Year" Width="100" VerticalAlignment="Center"/>
-                <TextBox Width="200" VerticalAlignment="Center" Name="txtManufactureYear"/>
+                <TextBox Width="200" VerticalAlignment="Center" Name="txtManufactureYear" 
+                         PreviewTextInput="TxtManufactureYear_PreviewTextInput"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Engine Number" Width="100" VerticalAlignment="Center"/>

@@ -17,13 +17,15 @@ namespace QuanLiKhiThai
         private readonly IUserDAO _userDAO;
         private readonly IVehicleDAO _vehicleDAO;
         private readonly IInspectionAppointmentDAO _inspectionAppointmentDAO;
+        private readonly IInspectionRecordDAO _inspectionRecordDAO;
 
-        public ScheduleTestWindow(IUserDAO userDAO, IVehicleDAO vehicleDAO, IInspectionAppointmentDAO inspectionAppointmentDAO)
+        public ScheduleTestWindow(IUserDAO userDAO, IVehicleDAO vehicleDAO, IInspectionAppointmentDAO inspectionAppointmentDAO, IInspectionRecordDAO inspectionRecordDAO)
         {
             InitializeComponent();
             this._userDAO = userDAO;
             this._vehicleDAO = vehicleDAO;
             this._inspectionAppointmentDAO = inspectionAppointmentDAO;
+            this._inspectionRecordDAO = inspectionRecordDAO;
             LoadData();
         }
 
@@ -32,11 +34,24 @@ namespace QuanLiKhiThai
             int ownerId = UserContext.Current.UserId;
             List<Vehicle> vehicles = _vehicleDAO.GetVehicleByOwnerId(ownerId).ToList();
 
-            // Filter out vehicles with pending appointments
-            var vehiclesWithoutPendingAppointments = vehicles.Where(v =>
-                !_inspectionAppointmentDAO.HavePendingAppointment(v.VehicleId)).ToList();
+            // Filter out vehicles with pending appointments or in testing status
+            var availableVehicles = new List<Vehicle>();
 
-            this.cbVehicles.ItemsSource = vehiclesWithoutPendingAppointments;
+            foreach (var vehicle in vehicles)
+            {
+                // Check if vehicle has pending appointment
+                bool hasPendingAppointment = _inspectionAppointmentDAO.HavePendingAppointment(vehicle.VehicleId);
+
+                // Check if vehicle is currently in testing process
+                bool isInTesting = HasOngoingInspection(vehicle.VehicleId);
+
+                if (!hasPendingAppointment && !isInTesting)
+                {
+                    availableVehicles.Add(vehicle);
+                }
+            }
+
+            this.cbVehicles.ItemsSource = availableVehicles;
             this.cbVehicles.DisplayMemberPath = "PlateNumber";
             this.cbVehicles.SelectedValuePath = "VehicleId";
 
@@ -51,6 +66,13 @@ namespace QuanLiKhiThai
             this.cbStations.SelectedValuePath = "StationId";
 
             this.dpScheduleDate.SelectedDate = DateTime.Now.AddDays(1);
+        }
+
+        // Helper method to check if a vehicle has an ongoing inspection (Testing status)
+        private bool HasOngoingInspection(int vehicleId)
+        {
+            InspectionRecord? currentRecord = _inspectionRecordDAO.GetCurrentRecordByVehicleId(vehicleId);
+            return currentRecord != null && currentRecord.Result == Constants.RESULT_TESTING;
         }
 
         private void ShowMessage(string message)

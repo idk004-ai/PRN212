@@ -91,9 +91,19 @@ namespace QuanLiKhiThai.Views
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = false;
-            this.Close();
+            try
+            {
+                this.DialogResult = false;
+            }
+            catch (InvalidOperationException)
+            {
+            }
+            finally
+            {
+                this.Close();
+            }
         }
+
 
         #endregion
 
@@ -128,7 +138,7 @@ namespace QuanLiKhiThai.Views
 
                 Log logEntry = new Log
                 {
-                    UserId = UserContext.Current?.UserId ?? 1,
+                    UserId = UserContext.Current?.UserId ?? Constants.SYSTEM_USER_ID,
                     Action = $"Updated inspector '{_existingUser.FullName}' (ID: {_existingUser.UserId}) information",
                     Timestamp = DateTime.Now
                 };
@@ -214,7 +224,7 @@ namespace QuanLiKhiThai.Views
 
             Log logEntry = new Log
             {
-                UserId = UserContext.Current?.UserId ?? 1,
+                UserId = UserContext.Current?.UserId ?? Constants.SYSTEM_USER_ID,
                 Action = $"Created new inspector '{newUser.FullName}' and assigned to station ID {_stationId}",
                 Timestamp = DateTime.Now
             };

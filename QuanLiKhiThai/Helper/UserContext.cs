@@ -20,7 +20,7 @@
             }
         }
 
-        private UserContext() { }
+        protected UserContext() { }
 
 
     }

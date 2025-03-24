@@ -1,0 +1,34 @@
+﻿<Window x:Class="QuanLiKhiThai.Views.StationDateEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Edit Inspection Date" Height="240" Width="400"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Edit Inspection Date" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+
+        <TextBlock Grid.Row="1" Text="Select a new date and time for the inspection:" Margin="0,0,0,10"/>
+
+        <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,0,0,20">
+            <DatePicker Name="datePicker" Margin="0,0,0,10"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Time:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <ComboBox Name="hourComboBox" Width="50" Margin="0,0,5,0"/>
+                <TextBlock Text=":" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <ComboBox Name="minuteComboBox" Width="50"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Cancel" Width="80" Margin="0,0,10,0" Click="Cancel_Click"/>
+            <Button Content="Save" Width="80" Click="Save_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,283 @@
+﻿<Window x:Class="QuanLiKhiThai.Views.VehicleViolationReportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:QuanLiKhiThai.Views"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        Title="Report Vehicle Violation - Emissions Inspection System" 
+        Height="700" Width="900"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <!--<Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        --><!-- Header --><!--
+        <Border Grid.Row="0" Background="#F44336" Padding="20,15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Vertical">
+                    <TextBlock Text="VEHICLE VIOLATION REPORT" 
+                               FontSize="22" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Send violation notice for expired or failed inspection" 
+                               FontSize="14" Foreground="White" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <Button Grid.Column="1" x:Name="btnBack" 
+                        Content="BACK" Padding="15,8" 
+                        Background="#2C3E50" Foreground="White" 
+                        BorderThickness="0" Click="btnBack_Click"/>
+            </Grid>
+        </Border>
+
+        --><!-- Main Content --><!--
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            --><!-- Vehicle Information Panel --><!--
+            <Border Grid.Row="0" Background="White" BorderBrush="#DDDDDD" 
+                    BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Vehicle Information" 
+                               FontWeight="SemiBold" FontSize="16" Margin="0,0,0,15"/>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        --><!-- Vehicle Details --><!--
+                        <Grid Grid.Column="0" Margin="0,0,10,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="License Plate:" FontWeight="SemiBold" Margin="0,5"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtPlateNumber" Text="N/A" Margin="0,5"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Brand:" FontWeight="SemiBold" Margin="0,5"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="txtBrand" Text="N/A" Margin="0,5"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Model:" FontWeight="SemiBold" Margin="0,5"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="txtModel" Text="N/A" Margin="0,5"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Year:" FontWeight="SemiBold" Margin="0,5"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="txtYear" Text="N/A" Margin="0,5"/>
+                        </Grid>
+
+                        --><!-- Owner Details --><!--
+                        <Grid Grid.Column="1" Margin="10,0,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Owner Name:" FontWeight="SemiBold" Margin="0,5"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtOwnerName" Text="N/A" Margin="0,5"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Owner Email:" FontWeight="SemiBold" Margin="0,5"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="txtOwnerEmail" Text="N/A" Margin="0,5"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Engine Number:" FontWeight="SemiBold" Margin="0,5"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="txtEngineNumber" Text="N/A" Margin="0,5"/>
+
+                            <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" 
+                                    x:Name="inspectionStatusBorder" Background="#FFEBEE" 
+                                    Padding="10,5" CornerRadius="4" Margin="0,5">
+                                <TextBlock x:Name="txtInspectionStatus" Text="No inspection status available"
+                                           Foreground="#C62828" FontWeight="SemiBold"/>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            --><!-- Violation Form --><!--
+            <Border Grid.Row="1" Background="White" BorderBrush="#DDDDDD" 
+                    BorderThickness="1" CornerRadius="8" Padding="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    --><!-- Form Title --><!--
+                    <TextBlock Grid.Row="0" Text="Violation Details" 
+                               FontWeight="SemiBold" FontSize="16" Margin="0,0,0,15"/>
+
+                    --><!-- Last Inspection Details --><!--
+                    <Expander Grid.Row="1" Header="Last Inspection Details" Margin="0,0,0,15" IsExpanded="True">
+                        <Grid Margin="20,10,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Inspection Date:" 
+                                       FontWeight="SemiBold" Margin="0,5"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtInspectionDate" 
+                                       Text="N/A" Margin="0,5"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Station:" 
+                                       FontWeight="SemiBold" Margin="0,5"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="txtStation" 
+                                       Text="N/A" Margin="0,5"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Result:" 
+                                       FontWeight="SemiBold" Margin="0,5"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="txtResult" 
+                                       Text="N/A" Margin="0,5"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="CO2 Level:" 
+                                       FontWeight="SemiBold" Margin="0,5"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="txtCO2Level" 
+                                       Text="N/A" Margin="0,5"/>
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="HC Level:" 
+                                       FontWeight="SemiBold" Margin="0,5"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="txtHCLevel" 
+                                       Text="N/A" Margin="0,5"/>
+                        </Grid>
+                    </Expander>
+
+                    --><!-- Fine Details --><!--
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        --><!-- Violation Type --><!--
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Violation Type:" 
+                                   FontWeight="SemiBold" Margin="0,10"/>
+                        <ComboBox Grid.Row="0" Grid.Column="1" x:Name="cmbViolationType" Margin="0,10"
+                                  SelectedIndex="0">
+                            <ComboBoxItem Content="No Valid Emissions Certificate"/>
+                            <ComboBoxItem Content="Expired Emissions Certificate"/>
+                            <ComboBoxItem Content="Failed Inspection, Vehicle in Use"/>
+                            <ComboBoxItem Content="Tampered Emissions Equipment"/>
+                        </ComboBox>
+
+                        --><!-- Fine Amount --><!--
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Fine Amount (VND):" 
+                                   FontWeight="SemiBold" Margin="0,10"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtFineAmount" 
+                                 Margin="0,10" Padding="5" Text="500000"/>
+
+                        --><!-- Due Date --><!--
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Payment Due:" 
+                                   FontWeight="SemiBold" Margin="0,10"/>
+                        <DatePicker Grid.Row="2" Grid.Column="1" x:Name="dueDatePicker" 
+                                    Margin="0,10" SelectedDate="{x:Static sys:DateTime.Now}"/>
+
+                        --><!-- Email Configuration --><!--
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Email Subject:" 
+                                   FontWeight="SemiBold" Margin="0,10"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" x:Name="txtEmailSubject" 
+                                 Margin="0,10" Padding="5" 
+                                 Text="NOTICE: Vehicle Emissions Violation"/>
+
+                        --><!-- Email Message --><!--
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Email Message:" 
+                                   FontWeight="SemiBold" Margin="0,10" VerticalAlignment="Top"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" x:Name="txtEmailMessage" 
+                                 Margin="0,10" Padding="5" Height="120" 
+                                 TextWrapping="Wrap" AcceptsReturn="True" 
+                                 VerticalScrollBarVisibility="Auto">
+                            <TextBox.Text>Dear Vehicle Owner,
+
+This is to inform you that your vehicle with license plate [PLATE] has been found in violation of emissions regulations. 
+
+Violation Type: [VIOLATION]
+Fine Amount: [AMOUNT] VND
+Payment Due: [DUEDATE]
+
+Please make the payment before the due date to avoid additional penalties. You can pay your fine online at our official website or at any authorized payment centers.
+
+Sincerely,
+Emissions Inspection Department</TextBox.Text>
+                        </TextBox>
+
+                        --><!-- Attach Report --><!--
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Attachments:" 
+                                   FontWeight="SemiBold" Margin="0,10"/>
+                        <CheckBox Grid.Row="5" Grid.Column="1" x:Name="chkAttachReport" 
+                                  Content="Attach inspection report PDF" 
+                                  Margin="0,10" IsChecked="True"/>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        --><!-- Footer --><!--
+        <Border Grid.Row="2" Background="#F5F5F5" Padding="20,15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="© 2025 - Emissions Inspection Management System" 
+                           VerticalAlignment="Center"/>
+
+                <Button Grid.Column="1" x:Name="btnPreview" 
+                        Content="PREVIEW EMAIL" Padding="15,8" Margin="0,0,10,0"
+                        Background="#607D8B" Foreground="White" 
+                        BorderThickness="0" Click="btnPreview_Click"/>
+
+                <Button Grid.Column="2" x:Name="btnSendEmail" 
+                        Content="SEND VIOLATION NOTICE" Padding="15,8" 
+                        Background="#F44336" Foreground="White" 
+                        BorderThickness="0" Click="btnSendEmail_Click"/>
+            </Grid>
+        </Border>-->
+    </Grid>
+</Window>

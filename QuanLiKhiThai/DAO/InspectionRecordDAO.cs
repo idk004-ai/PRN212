@@ -8,13 +8,17 @@ namespace QuanLiKhiThai.DAO
     class InspectionRecordDAO : IInspectionRecordDAO
     {
         private readonly IInspectionAppointmentDAO _inspectionAppointmentDAO;
+        private readonly ValidationService _validationService;
+        private readonly IValidationNotifier _notifier;
 
-        public InspectionRecordDAO(IInspectionAppointmentDAO inspectionAppointmentDAO)
+        public InspectionRecordDAO(IInspectionAppointmentDAO inspectionAppointmentDAO, ValidationService validationService, IValidationNotifier validationNotifier)
         {
             this._inspectionAppointmentDAO = inspectionAppointmentDAO;
+            this._validationService = validationService;
+            this._notifier = validationNotifier;
         }
 
-        bool IServiceDAO<InspectionRecord>.Add(InspectionRecord entity)
+        public bool Add(InspectionRecord entity)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -23,7 +27,7 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        bool IServiceDAO<InspectionRecord>.Delete(int id)
+        public bool Delete(int id)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -37,47 +41,43 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        IEnumerable<InspectionRecord> IServiceDAO<InspectionRecord>.GetAll()
-        {
-            using (var db = new QuanLiKhiThaiContext())
-            {
-                return db.InspectionRecords.ToList();
-            }
-        }
-
-        InspectionRecord? IServiceDAO<InspectionRecord>.GetById(int id)
-        {
-            using (var db = new QuanLiKhiThaiContext())
-            {
-                return db.InspectionRecords.Find(id);
-            }
-        }
-
-        InspectionRecord? IInspectionRecordDAO.GetCurrentRecordByVehicleId(int vehicleId)
+        public IEnumerable<InspectionRecord> GetAll()
         {
             using (var db = new QuanLiKhiThaiContext())
             {
                 return db.InspectionRecords
-                    .Include(r => r.Inspector)
-                    .Include(r => r.Appointment)
-                    .Where(r => r.VehicleId == vehicleId && r.Result == Constants.RESULT_TESTING)
-                    .OrderByDescending(r => r.InspectionDate)
+                    .Include(ir => ir.Vehicle)
+                    .Include(ir => ir.Vehicle.Owner)
+                    .Include(ir => ir.Station)
+                    .Include(ir => ir.Inspector)
+                    .Include(ir => ir.Appointment)
+                    .ToList();
+            }
+        }
+
+        public InspectionRecord? GetById(int id)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return ((IServiceDAO<InspectionRecord>)this)
+                    .GetAll()
+                    .Where(i => i.RecordId == id)
                     .FirstOrDefault();
             }
         }
 
-        InspectionRecord? IInspectionRecordDAO.GetLastRecordByVehicleId(int vehicleId)
+        public List<InspectionRecord> GetRecordByVehicle(int vehicleId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
-                return db.InspectionRecords
+                return ((IServiceDAO<InspectionRecord>)this)
+                    .GetAll()
                     .Where(i => i.VehicleId == vehicleId)
-                    .OrderByDescending(i => i.InspectionDate)
-                    .FirstOrDefault();
+                    .ToList();
             }
         }
 
-        InspectionRecord? IInspectionRecordDAO.GetRecordByAppointment(int appointmentId)
+        public InspectionRecord? GetRecordByAppointment(int appointmentId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -87,7 +87,7 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        List<InspectionRecord> IInspectionRecordDAO.GetTestingRecordsByInspectorId(int inspectorId)
+        public List<InspectionRecord> GetTestingRecordsByInspectorId(int inspectorId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -101,7 +101,7 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        bool IServiceDAO<InspectionRecord>.Update(InspectionRecord entity)
+        public bool Update(InspectionRecord entity)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -110,7 +110,7 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        bool IInspectionRecordDAO.AssignInspector(InspectionRecord record, InspectionAppointment appointment, User inspector, string vehiclePlateNumber, int stationId, string stationFullName, Window windowToClose)
+        public bool AssignInspector(InspectionRecord record, InspectionAppointment appointment, User inspector, string vehiclePlateNumber, int stationId, string stationFullName, Window? windowToClose)
         {
             var operations = new Dictionary<string, Func<bool>>
             {
@@ -140,13 +140,13 @@ namespace QuanLiKhiThai.DAO
             return result;
         }
 
-        bool IInspectionRecordDAO.RecordInspectionResult(InspectionRecord record, UserContext inspector, string vehiclePlateNumber, string stationFullName, Window windowToClose)
+        public bool RecordInspectionResult(InspectionRecord record, UserContext inspector, string vehiclePlateNumber, string stationFullName, Window? windowToClose)
         {
             var operations = new Dictionary<string, Func<bool>>
             {
                 { "update record", () => ((IServiceDAO<InspectionRecord>)this).Update(record) },
                 { "update appointment", () => {
-                    if (!InspectionAppointmentValidation.ValidateDataConsistency(record.Appointment, Constants.STATUS_COMPLETED))
+                    if (!_validationService.ValidateDataConsistency(record.Appointment.AppointmentId, Constants.STATUS_COMPLETED))
                     {
                         return false;
                     }
@@ -177,12 +177,19 @@ namespace QuanLiKhiThai.DAO
             return result;
         }
 
-        bool IInspectionRecordDAO.CancelInspection(InspectionRecord inspectionRecord, UserContext inspector, string vehiclePlateNumber, string stationFullName, Window windowToClose)
+        public bool CancelInspection(
+            InspectionRecord inspectionRecord, 
+            UserContext inspector, 
+            string vehiclePlateNumber, 
+            string stationFullName, 
+            string cancellationReason, 
+            Window? windowToClose,
+            bool isSystemCancellation = false)
         {
             if (inspectionRecord == null)
             {
-                MessageBox.Show("Cannot cancel inspection. No record found for this vehicle.",
-            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (!isSystemCancellation)
+                    _notifier.ShowError("Cannot cancel inspection. Record not found.", "Error");
                 return false;
             }
 
@@ -190,38 +197,38 @@ namespace QuanLiKhiThai.DAO
             var appointment = _inspectionAppointmentDAO.GetById(appointmentId);
             if (appointment == null)
             {
-                MessageBox.Show("Cannot cancel inspection. No appointment found for this record.", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                if (!isSystemCancellation)
+                    _notifier.ShowError("Cannot cancel inspection. Appointment not found.", "Error");
                 return false;
+            }
+
+            if (!isSystemCancellation)
+            {
+                bool validateResult = _validationService.ValidateDataConsistencyForRecordCancellation(inspectionRecord.RecordId);
+                if (!validateResult) return false;
             }
 
             var operations = new Dictionary<string, Func<bool>>
             {
-                {"delete record", () => ((IServiceDAO<InspectionRecord>)this).Delete(inspectionRecord.RecordId) },
+                {"update record", () => 
+                {
+                    inspectionRecord.Result = Constants.RESULT_CANCELLED;
+                    inspectionRecord.InspectionDate = DateTime.Now; // set cancellation date
+                    inspectionRecord.Comments = cancellationReason;
+                    return Update(inspectionRecord);
+                }},
                 {"update appointment", () =>
                 {
-                    var updatedAppointment = _inspectionAppointmentDAO.GetById(appointmentId);
-                    if (updatedAppointment == null) return false;
-                    if (!InspectionAppointmentValidation.ValidateDataConsistency(updatedAppointment, Constants.STATUS_CANCELLED)) return false;
-                    updatedAppointment.Status = Constants.STATUS_CANCELLED;
-                    return _inspectionAppointmentDAO.Update(updatedAppointment);
-                } }
+                    appointment.Status = Constants.STATUS_PENDING; // reset appointment status to pending
+                    return _inspectionAppointmentDAO.Update(appointment);
+                }}
             };
 
             Log logEntry = new Log
             {
                 UserId = inspector.UserId,
-                Action = $"Cancelled inspection for vehicle {vehiclePlateNumber}",
+                Action = isSystemCancellation == false ? $"Cancelled inspection for vehicle {vehiclePlateNumber}" : $"System automatically cancelled inspection for vehicle {vehiclePlateNumber}",
                 Timestamp = DateTime.Now
-            };
-
-
-            Notification notification = new Notification
-            {
-                UserId = inspector.UserId,
-                Message = $"Inspector {inspector.FullName} has cancelled the inspection for vehicle {vehiclePlateNumber}",
-                SentDate = DateTime.Now,
-                IsRead = false
             };
 
             string successMessage = $"Inspection for vehicle {vehiclePlateNumber} has been cancelled at {stationFullName}.";
@@ -230,9 +237,10 @@ namespace QuanLiKhiThai.DAO
             bool result = TransactionHelper.ExecuteTransaction(
                 operations,
                 logEntry,
-                notification,
+                notification: null,
                 successMessage,
-                errorMessage
+                errorMessage,
+                isSystemCancellation
             );
 
             if (result && windowToClose != null)
@@ -244,7 +252,7 @@ namespace QuanLiKhiThai.DAO
 
         }
 
-        List<InspectionRecord> IInspectionRecordDAO.GetRecordInDateRange(DateTime startDate, DateTime endDate)
+        public List<InspectionRecord> GetRecordInDateRange(DateTime startDate, DateTime endDate)
         {
             using (var db = new QuanLiKhiThaiContext())
             {

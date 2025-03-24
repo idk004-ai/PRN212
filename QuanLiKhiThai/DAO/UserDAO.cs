@@ -25,7 +25,7 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        bool IUserDAO.CreateAppointment(InspectionAppointment appointment, UserContext owner, User station, Vehicle vehicle, Window windowToClose)
+        bool IUserDAO.CreateAppointment(InspectionAppointment appointment, UserContext owner, User station, Vehicle vehicle, Window? windowToClose)
         {
             var operations = new Dictionary<string, Func<bool>>
             {

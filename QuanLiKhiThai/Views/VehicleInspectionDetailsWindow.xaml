@@ -132,25 +132,15 @@
                         <TextBlock Text="Inspector Comments:" FontWeight="Bold"/>
                         <TextBox x:Name="txtComments" Height="100" TextWrapping="Wrap" Margin="0,5,0,0" AcceptsReturn="True"/>
                     </StackPanel>
-
-                    <!-- Result Section -->
-                    <!--<StackPanel Grid.Row="3" Margin="5,20,5,10">
-                        <TextBlock Text="Inspection Result:" FontWeight="Bold"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                            <RadioButton x:Name="rbPass" Content="PASS" Margin="0,0,20,0" GroupName="Result"/>
-                            <RadioButton x:Name="rbFail" Content="FAIL" Margin="0,0,20,0" GroupName="Result"/>
-                            <RadioButton x:Name="rbTesting" Content="TESTING" IsChecked="True" GroupName="Result"/>
-                        </StackPanel>
-                    </StackPanel>-->
                 </Grid>
             </ScrollViewer>
         </GroupBox>
 
         <!-- Footer with Buttons -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,10,20,20">
-            <Button Content="Cancel Inspection" Width="150" Height="35" Margin="0,0,10,0" 
+            <Button x:Name="btnCancelInspection" Content="Cancel Inspection" Width="150" Height="35" Margin="0,0,10,0" 
                     Click="CancelInspection_Click" Background="#FFDDDD"/>
-            <Button Content="Save Results" Width="150" Height="35" Margin="0,0,10,0" 
+            <Button x:Name="btnSaveResults" Content="Save Results" Width="150" Height="35" Margin="0,0,10,0" 
                     Click="SaveResults_Click"/>
             <Button Content="Close" Width="100" Height="35" Click="Close_Click"/>
         </StackPanel>

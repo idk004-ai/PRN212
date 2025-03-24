@@ -2,19 +2,8 @@
 using QuanLiKhiThai.DAO;
 using QuanLiKhiThai.DAO.Interface;
 using QuanLiKhiThai.ViewModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace QuanLiKhiThai
 {
@@ -30,9 +19,10 @@ namespace QuanLiKhiThai
         private readonly IVehicleDAO _vehicleDAO;
         private readonly IInspectionAppointmentDAO _inspectionAppointmentDAO;
         private readonly IInspectionRecordDAO _inspectionRecordDAO;
+        private readonly ValidationService _validationService;
         public bool AssignmentSuccess { get; private set; } = false;
 
-        public AssignInspectorWindow(VehicleCheckViewModel vehicleViewModel, IUserDAO userDAO, IVehicleDAO vehicleDAO, IInspectionAppointmentDAO inspectionAppointmentDAO, IInspectionRecordDAO inspectionRecordDAO)
+        public AssignInspectorWindow(VehicleCheckViewModel vehicleViewModel, IUserDAO userDAO, IVehicleDAO vehicleDAO, IInspectionAppointmentDAO inspectionAppointmentDAO, IInspectionRecordDAO inspectionRecordDAO, ValidationService validationService)
         {
             InitializeComponent();
             this._vehicleViewModel = vehicleViewModel;
@@ -40,6 +30,7 @@ namespace QuanLiKhiThai
             this._vehicleDAO = vehicleDAO;
             this._inspectionAppointmentDAO = inspectionAppointmentDAO;
             this._inspectionRecordDAO = inspectionRecordDAO;
+            this._validationService = validationService;
             LoadData();
         }
 
@@ -81,8 +72,9 @@ namespace QuanLiKhiThai
             Vehicle? vehicle = _vehicleDAO.GetByPlateNumber(_vehicleViewModel.PlateNumber);
             if (vehicle != null)
             {
-                var existingRecords = _inspectionRecordDAO.GetCurrentRecordByVehicleId(vehicle.VehicleId);
-                if (existingRecords != null)
+                var records = _inspectionRecordDAO.GetRecordByVehicle(vehicle.VehicleId);
+                bool hasTestRecord = records.Any(r => r.Result == Constants.RESULT_TESTING);
+                if (hasTestRecord)
                 {
                     MessageBox.Show($"Vehicle {_vehicleViewModel.PlateNumber} has already been assigned to an inspector.",
                         "Already Assigned", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -140,14 +132,15 @@ namespace QuanLiKhiThai
                         return;
                     }
 
+                    InspectionAppointment appointment = appointments.OrderByDescending(a => a.CreatedAt).First();
+
                     // TODO3: Validate assignment
-                    if (!InspectionAppointmentValidation.ValidateAssignment(appointments, vehicle.VehicleId))
+                    if (!_validationService.ValidateAssignment(appointment.AppointmentId))
                     {
                         EnableAllAssignButtons();
                         return;
                     }
 
-                    InspectionAppointment appointment = _inspectionAppointmentDAO.GetLast(appointments);
 
                     // TODO4: Check whether any record for this appointment
                     if (_inspectionRecordDAO.GetRecordByAppointment(appointment.AppointmentId) != null)
@@ -165,7 +158,7 @@ namespace QuanLiKhiThai
                         StationId = UserContext.Current.UserId,
                         InspectorId = selectedInspector.UserId,
                         AppointmentId = appointment.AppointmentId,
-                        InspectionDate = appointment.ScheduledDateTime,
+                        InspectionDate = null, // Not yet inspected
                         Result = Constants.RESULT_TESTING,
                         Co2emission = 0,
                         Hcemission = 0,

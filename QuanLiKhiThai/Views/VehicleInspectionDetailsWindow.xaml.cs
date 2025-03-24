@@ -1,6 +1,7 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO;
 using QuanLiKhiThai.DAO.Interface;
+using QuanLiKhiThai.Views;
 using System.Windows;
 using System.Windows.Media;
 
@@ -15,16 +16,31 @@ namespace QuanLiKhiThai
         private Random _random = new Random(); // For simulating measurements
         private bool co2Pass = false;
         private bool hcPass = false;
+        private bool _isViewMode = false;
 
         private readonly IInspectionRecordDAO _inspectionRecordDAO;
 
-        public VehicleInspectionDetailsWindow(InspectionRecord record, IInspectionRecordDAO inspectionRecordDAO)
+        public VehicleInspectionDetailsWindow(InspectionRecord record, bool isViewMode, IInspectionRecordDAO inspectionRecordDAO)
         {
             InitializeComponent();
             _record = record;
+            _isViewMode = isViewMode;
             this._inspectionRecordDAO = inspectionRecordDAO;
             LoadVehicleData();
             LoadExistingResults();
+
+            ConfigureUIBasedOnMode();
+        }
+
+        private void ConfigureUIBasedOnMode()
+        {
+            if (_isViewMode || _record.Result == Constants.RESULT_PASSED || _record.Result == Constants.RESULT_FAILED || _record.Result == Constants.RESULT_CANCELLED)
+            {
+                btnCancelInspection.Visibility = Visibility.Collapsed;
+                btnSaveResults.Visibility = Visibility.Collapsed;
+
+                DisableControls();
+            }
         }
 
         private void LoadVehicleData()
@@ -68,12 +84,6 @@ namespace QuanLiKhiThai
             if (!string.IsNullOrEmpty(_record.Comments))
             {
                 txtComments.Text = _record.Comments;
-            }
-
-            // Disable controls if inspection is completed
-            if (_record.Result == Constants.RESULT_PASSED || _record.Result == Constants.RESULT_FAILED)
-            {
-                DisableControls();
             }
         }
 
@@ -213,12 +223,23 @@ namespace QuanLiKhiThai
             {
                 try
                 {
-                    _inspectionRecordDAO.CancelInspection(
-                        _record,
-                        UserContext.Current,
-                        _record.Vehicle.PlateNumber,
-                        _record.Station.FullName,
-                        this);
+                    var reasonWindow = new CancellationReasonWindow(_record.Vehicle.PlateNumber);
+                    reasonWindow.Owner = this;
+
+                    bool? dialogResult = reasonWindow.ShowDialog();
+
+                    if (dialogResult == true)
+                    {
+                        string cancellationReason = reasonWindow.CancellationReason;
+
+                        _inspectionRecordDAO.CancelInspection(
+                            _record,
+                            UserContext.Current,
+                            _record.Vehicle.PlateNumber,
+                            _record.Station.FullName,
+                            cancellationReason,
+                            this);
+                    }
                 }
                 catch (Exception ex)
                 {

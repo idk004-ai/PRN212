@@ -5,27 +5,181 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QuanLiKhiThai"
         mc:Ignorable="d"
-        Title="Needed Check Vehicle List" Height="450" Width="1011">
+        Title="Vehicle Management" Height="550" Width="1011">
     <Grid Background="Beige">
-        <StackPanel Margin="20">
-            <TextBlock Text="Needed Check Vehicle List" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
-            <DataGrid Name="dataGridVehicle" AutoGenerateColumns="False" Height="300" CanUserAddRows="False" SelectionMode="Single">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Plate Number" Binding="{Binding PlateNumber}" Width="*"/>
-                    <DataGridTextColumn Header="Owner Email" Binding="{Binding EmailOwner}" Width="*"/>
-                    <DataGridTemplateColumn Header="Actions" Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Button Content="View" Click="ViewButton_Click" CommandParameter="{Binding}" Margin="5"/>
-                                    <Button Content="Assign Inspector" Click="AssignButton_Click" CommandParameter="{Binding}" Margin="5"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
-        </StackPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Back to Home button -->
+        <Grid Grid.Row="0" Margin="20,10,20,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" 
+                       Text="Vehicle Management" 
+                       FontSize="22" 
+                       FontWeight="Bold" 
+                       VerticalAlignment="Center"/>
+
+            <Button Grid.Column="1"
+                    Content="Back to Home" 
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Center" 
+                    Padding="10,5"
+                    Background="#FF4B8AD0" 
+                    Foreground="White"
+                    Click="BackToHome_Click"/>
+        </Grid>
+
+        <TabControl Grid.Row="1" Margin="20,10,20,20">
+            <TabItem Header="Needed Check Vehicles">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header with Refresh button -->
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="Needed Check Vehicle List" 
+                                  FontSize="20" FontWeight="Bold" 
+                                  VerticalAlignment="Center"/>
+
+                        <Button Grid.Column="1" 
+                                Name="btnRefreshPending" 
+                                Click="RefreshPendingButton_Click"
+                                ToolTip="Refresh list"
+                                Padding="8,3" 
+                                Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xe117;" FontFamily="Segoe MDL2 Assets" Margin="0,0,5,0"/>
+                                <!-- Refresh icon -->
+                                <TextBlock Text="Refresh"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <!-- Views/NeededCheckVehicleList.xaml (Partial) -->
+                    <DataGrid Grid.Row="1" Name="dataGridVehicle" AutoGenerateColumns="False" Height="300" CanUserAddRows="False" SelectionMode="Single">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Plate Number" Binding="{Binding PlateNumber}" Width="*"/>
+                            <DataGridTextColumn Header="Owner Email" Binding="{Binding EmailOwner}" Width="*"/>
+                            <DataGridTextColumn Header="Scheduled Date" Binding="{Binding ScheduledDate, StringFormat=\{0:dd/MM/yyyy HH:mm\}}" Width="*">
+                                <DataGridTextColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsOverdue}" Value="True">
+                                                <Setter Property="Foreground" Value="Red"/>
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGridTextColumn.CellStyle>
+                            </DataGridTextColumn>
+                            <DataGridTemplateColumn Header="Actions" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="View" Click="ViewButton_Click" CommandParameter="{Binding}" Margin="5"/>
+                                            <Button Content="Assign Inspector" Click="AssignButton_Click" CommandParameter="{Binding}" Margin="5"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Pagination Controls for Needed Check Vehicles -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                        <Button Content="Previous" Name="btnPendingPrevious" Click="PendingPrevious_Click" Width="80" Margin="5"/>
+                        <TextBlock Name="txtPendingPageInfo" Text="Page 1 of 1" VerticalAlignment="Center" Margin="10,0"/>
+                        <Button Content="Next" Name="btnPendingNext" Click="PendingNext_Click" Width="80" Margin="5"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
+                            <TextBlock Text="Page Size:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <ComboBox Name="cmbPendingPageSize" SelectionChanged="PendingPageSize_SelectionChanged" Width="50">
+                                <ComboBoxItem Content="5"/>
+                                <ComboBoxItem Content="10" IsSelected="True"/>
+                                <ComboBoxItem Content="20"/>
+                                <ComboBoxItem Content="50"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Assigned Vehicles">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header with Refresh button -->
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="Assigned Vehicle List" 
+                                  FontSize="20" FontWeight="Bold" 
+                                  VerticalAlignment="Center"/>
+
+                        <Button Grid.Column="1" 
+                                Name="btnRefreshAssigned" 
+                                Click="RefreshAssignedButton_Click"
+                                ToolTip="Refresh list"
+                                Padding="8,3" 
+                                Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xe117;" FontFamily="Segoe MDL2 Assets" Margin="0,0,5,0"/>
+                                <!-- Refresh icon -->
+                                <TextBlock Text="Refresh"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <DataGrid Grid.Row="1" Name="dataGridAssignedVehicles" AutoGenerateColumns="False" Height="300" 
+                              CanUserAddRows="False" SelectionMode="Single" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Record ID" Binding="{Binding RecordId}" Width="0.5*"/>
+                            <DataGridTextColumn Header="Plate Number" Binding="{Binding PlateNumber}" Width="*"/>
+                            <DataGridTextColumn Header="Inspector Name" Binding="{Binding InspectorName}" Width="*"/>
+                            <DataGridTextColumn Header="Assigned Date" Binding="{Binding AssignedDate, StringFormat={}{0:dd/MM/yyyy}}" Width="*"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Result}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Pagination Controls for Assigned Vehicles -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                        <Button Content="Previous" Name="btnAssignedPrevious" Click="AssignedPrevious_Click" Width="80" Margin="5"/>
+                        <TextBlock Name="txtAssignedPageInfo" Text="Page 1 of 1" VerticalAlignment="Center" Margin="10,0"/>
+                        <Button Content="Next" Name="btnAssignedNext" Click="AssignedNext_Click" Width="80" Margin="5"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
+                            <TextBlock Text="Page Size:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <ComboBox Name="cmbAssignedPageSize" SelectionChanged="AssignedPageSize_SelectionChanged" Width="50">
+                                <ComboBoxItem Content="5"/>
+                                <ComboBoxItem Content="10" IsSelected="True"/>
+                                <ComboBoxItem Content="20"/>
+                                <ComboBoxItem Content="50"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
-

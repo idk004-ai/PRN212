@@ -57,7 +57,7 @@ namespace QuanLiKhiThai.DAO.Interface
             UserContext owner,
             User station,
             Vehicle vehicle,
-            Window windowToClose = null
+            Window? windowToClose = null
             );
     }
 }

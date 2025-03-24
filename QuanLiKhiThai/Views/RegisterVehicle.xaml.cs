@@ -1,20 +1,12 @@
 ﻿using QuanLiKhiThai.Context;
-using QuanLiKhiThai.DAO;
 using QuanLiKhiThai.DAO.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace QuanLiKhiThai
 {
@@ -26,11 +18,54 @@ namespace QuanLiKhiThai
         private readonly IVehicleDAO _vehicleDAO;
         // Regular expression for Vietnamese license plates
         private readonly Regex plateNumberRegex = new Regex(@"^\d{2}[A-Z]-\d{4,5}$|^\d{2}[A-Z]\s\d{4,5}$");
+        private ObservableCollection<Vehicle> _userVehicles;
+        private Vehicle? _selectedVehicle; // For edit mode
+        private bool _isEditMode = false;
 
         public RegisterVehicle(IVehicleDAO vehicleDAO)
         {
             InitializeComponent();
             this._vehicleDAO = vehicleDAO;
+            _userVehicles = new ObservableCollection<Vehicle>();
+            dgVehicles.ItemsSource = _userVehicles;
+
+            // Add event handlers
+            Loaded += RegisterVehicle_Loaded;
+            btnRefresh.Click += RefreshButton_Click;
+
+            // Default tab is Register
+            MainTabControl.SelectedIndex = 0;
+        }
+
+        private void RegisterVehicle_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadUserVehicles();
+        }
+
+        private void LoadUserVehicles()
+        {
+            try
+            {
+                _userVehicles.Clear();
+
+                // Get all vehicles owned by the current user
+                int ownerId = UserContext.Current.UserId;
+                var vehicles = _vehicleDAO.GetVehicleByOwnerId(ownerId).ToList();
+
+                foreach (var vehicle in vehicles)
+                {
+                    _userVehicles.Add(vehicle);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading vehicles: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            LoadUserVehicles();
         }
 
         private bool ValidateFields()
@@ -54,7 +89,7 @@ namespace QuanLiKhiThai
                 HighlightField(txtPlateNumber);
                 isValid = false;
             }
-            else
+            else if (!_isEditMode) // Only check for duplicates in add mode
             {
                 // Check if plate number already exists
                 var existingVehicle = _vehicleDAO.GetByPlateNumber(txtPlateNumber.Text);
@@ -179,37 +214,84 @@ namespace QuanLiKhiThai
 
             try
             {
-                Vehicle vehicle = new Vehicle
+                if (_isEditMode)
                 {
-                    PlateNumber = plateNumber,
-                    Brand = brand,
-                    Model = model,
-                    ManufactureYear = manufactureYear,
-                    EngineNumber = engineNumber,
-                    OwnerId = UserContext.Current.UserId
-                };
+                    // Update existing vehicle
+                    _selectedVehicle.Brand = brand;
+                    _selectedVehicle.Model = model;
+                    _selectedVehicle.ManufactureYear = manufactureYear;
+                    _selectedVehicle.EngineNumber = engineNumber;
 
-                var operations = new Dictionary<string, Func<bool>>
+                    var operations = new Dictionary<string, Func<bool>>
+                    {
+                        { "Update vehicle", () => _vehicleDAO.Update(_selectedVehicle) }
+                    };
+
+                    Log logEntry = new Log
+                    {
+                        UserId = UserContext.Current.UserId,
+                        Action = $"Updated vehicle with plate number {plateNumber}",
+                        Timestamp = DateTime.Now
+                    };
+
+                    string successMessage = "Vehicle updated successfully!";
+                    string errorMessage = "Failed to update vehicle!";
+
+                    bool result = TransactionHelper.ExecuteTransaction(operations, logEntry, null, successMessage, errorMessage);
+
+                    if (result)
+                    {
+                        // Switch to the vehicles list tab
+                        MainTabControl.SelectedIndex = 1;
+
+                        // Refresh data
+                        LoadUserVehicles();
+
+                        // Reset form for future use
+                        ResetForm();
+                    }
+                }
+                else
                 {
-                    { "Register new vehicle", () => _vehicleDAO.Add(vehicle) }
-                };
+                    // Register new vehicle
+                    Vehicle vehicle = new Vehicle
+                    {
+                        PlateNumber = plateNumber,
+                        Brand = brand,
+                        Model = model,
+                        ManufactureYear = manufactureYear,
+                        EngineNumber = engineNumber,
+                        OwnerId = UserContext.Current.UserId
+                    };
 
-                Log logEntry = new Log
-                {
-                    UserId = UserContext.Current.UserId,
-                    Action = $"Register new vehicle with plate number {plateNumber}",
-                    Timestamp = DateTime.Now
-                };
+                    var operations = new Dictionary<string, Func<bool>>
+                    {
+                        { "Register new vehicle", () => _vehicleDAO.Add(vehicle) }
+                    };
 
-                string successMessage = "Vehicle registered successfully!";
-                string errorMessage = "Failed to register vehicle!";
+                    Log logEntry = new Log
+                    {
+                        UserId = UserContext.Current.UserId,
+                        Action = $"Register new vehicle with plate number {plateNumber}",
+                        Timestamp = DateTime.Now
+                    };
 
-                bool result = TransactionHelper.ExecuteTransaction(operations, logEntry, null, successMessage, errorMessage);
+                    string successMessage = "Vehicle registered successfully!";
+                    string errorMessage = "Failed to register vehicle!";
 
-                if (result)
-                {
-                    // Clear the form fields after successful registration
-                    ClearFields();
+                    bool result = TransactionHelper.ExecuteTransaction(operations, logEntry, null, successMessage, errorMessage);
+
+                    if (result)
+                    {
+                        // Switch to the vehicles list tab
+                        MainTabControl.SelectedIndex = 1;
+
+                        // Refresh data
+                        LoadUserVehicles();
+
+                        // Clear the form fields
+                        ClearFields();
+                    }
                 }
             }
             catch (Exception ex)
@@ -221,10 +303,29 @@ namespace QuanLiKhiThai
         private void ClearFields()
         {
             txtPlateNumber.Clear();
+            txtPlateNumber.IsEnabled = true;
             txtBrand.Clear();
             txtModel.Clear();
             txtManufactureYear.Clear();
             txtEngineNumber.Clear();
+            _isEditMode = false;
+            _selectedVehicle = null;
+        }
+
+        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            ResetForm();
+        }
+
+        private void ResetForm()
+        {
+            // Clear all fields and reset to Add mode
+            ClearFields();
+
+            // Reset button text
+            Button registerBtn = this.FindName("RegisterVehicleButton_Click") as Button;
+            if (registerBtn != null)
+                registerBtn.Content = "Register";
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
@@ -236,6 +337,81 @@ namespace QuanLiKhiThai
         private void TxtManufactureYear_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !char.IsDigit(e.Text[0]);
+        }
+
+        private void EditVehicleButton_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = (Button)sender;
+            _selectedVehicle = (Vehicle)button.CommandParameter;
+
+            if (_selectedVehicle != null)
+            {
+                // Switch to edit mode
+                _isEditMode = true;
+
+                // Populate form with vehicle data
+                txtPlateNumber.Text = _selectedVehicle.PlateNumber;
+                txtPlateNumber.IsEnabled = false;  // Don't allow changing plate number
+                txtBrand.Text = _selectedVehicle.Brand;
+                txtModel.Text = _selectedVehicle.Model;
+                txtManufactureYear.Text = _selectedVehicle.ManufactureYear.ToString();
+                txtEngineNumber.Text = _selectedVehicle.EngineNumber;
+
+                // Switch to register tab to edit
+                MainTabControl.SelectedIndex = 0;
+
+                // Change button text to indicate editing
+                // Since we can't directly access the button from XAML by name,
+                // we'll rely on the logic in RegisterVehicleButton_Click to handle
+                // both add and edit cases.
+            }
+        }
+
+        private void DeleteVehicleButton_Click(object sender, RoutedEventArgs e)
+        {
+            Vehicle selectedVehicle = (Vehicle)((Button)sender).CommandParameter;
+
+            if (selectedVehicle != null)
+            {
+                MessageBoxResult result = MessageBox.Show(
+                    $"Are you sure you want to delete the vehicle with plate number {selectedVehicle.PlateNumber}?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        var operations = new Dictionary<string, Func<bool>>
+                        {
+                            { "Delete vehicle", () => _vehicleDAO.Delete(selectedVehicle.VehicleId) }
+                        };
+
+                        Log logEntry = new Log
+                        {
+                            UserId = UserContext.Current.UserId,
+                            Action = $"Deleted vehicle with plate number {selectedVehicle.PlateNumber}",
+                            Timestamp = DateTime.Now
+                        };
+
+                        string successMessage = "Vehicle deleted successfully!";
+                        string errorMessage = "Failed to delete vehicle. It might be referenced by other records.";
+
+                        bool deleteResult = TransactionHelper.ExecuteTransaction(operations, logEntry, null, successMessage, errorMessage);
+
+                        if (deleteResult)
+                        {
+                            // Refresh the list
+                            LoadUserVehicles();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error deleting vehicle: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
         }
     }
 }

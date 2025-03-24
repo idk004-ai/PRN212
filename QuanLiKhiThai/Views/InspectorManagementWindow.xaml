@@ -18,8 +18,8 @@
     <Grid>
         <Grid.Background>
             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                <GradientStop Color="#FFE5F1FF" Offset="0"/>
-                <GradientStop Color="#FFCDE8FF" Offset="1"/>
+                <GradientStop Color="Beige" Offset="0"/>
+                <GradientStop Color="Beige" Offset="1"/>
             </LinearGradientBrush>
         </Grid.Background>
 
@@ -67,7 +67,7 @@
 
             <DataGrid x:Name="dgInspectors" AutoGenerateColumns="False" IsReadOnly="True"
                       AlternatingRowBackground="#FFF0F8FF"
-                      BorderThickness="1" BorderBrush="#FFACD0F5"
+                      BorderThickness="1" BorderBrush="Beige"
                       SelectionMode="Single"
                       SelectionChanged="dgInspectors_SelectionChanged">
                 <DataGrid.Columns>

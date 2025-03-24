@@ -4,77 +4,234 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QuanLiKhiThai"
+        xmlns:helper="clr-namespace:QuanLiKhiThai.Helper"
         mc:Ignorable="d"
-        Title="My Assigned Vehicles" Height="600" Width="1000">
+        Title="Vehicle Inspection Portal" Height="600" Width="1000">
+    <Window.Resources>
+        <helper:ResultNotCancelledConverter x:Key="ResultNotCancelledConverter"/>
+    </Window.Resources>
     <Grid Background="Beige">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="20,20,20,10">
-            <TextBlock Text="My Assigned Vehicles" FontSize="24" FontWeight="Bold"/>
-            <TextBlock Text="View and manage your assigned inspection tasks" FontSize="14" Margin="0,5,0,0"/>
-        </StackPanel>
-
-        <!-- Filter Controls -->
-        <Grid Grid.Row="1" Margin="20,0,20,10">
+        <!-- Header with Logout Button -->
+        <Grid Grid.Row="0" Margin="20,20,20,10">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0" Text="Filter by Date:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-            <DatePicker Grid.Column="1" x:Name="dpFilterDate" Width="150" SelectedDateChanged="dpFilterDate_SelectedDateChanged" 
-                      Margin="0,0,10,0" VerticalAlignment="Center"/>
-
-            <Button Grid.Column="2" Content="Today" Width="80" Height="25" Click="TodayButton_Click" Margin="0,0,10,0"/>
-            <Button Grid.Column="3" Content="All Records" Width="100" Height="25" Click="AllRecordsButton_Click" Margin="0,0,10,0"/>
-
-            <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
-                <TextBlock Text="Total Records: " VerticalAlignment="Center" FontWeight="Bold"/>
-                <TextBlock x:Name="txtRecordCount" Text="0" VerticalAlignment="Center" Margin="5,0,0,0"/>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Vehicle Inspection Portal" FontSize="24" FontWeight="Bold"/>
+                <TextBlock Text="Manage vehicle inspections and view history" FontSize="14" Margin="0,5,0,0"/>
             </StackPanel>
+
+            <Button Grid.Column="1" 
+                    x:Name="btnLogout" 
+                    Content="Logout" 
+                    Width="100" 
+                    Height="35" 
+                    Background="#FF5252" 
+                    Foreground="White" 
+                    FontWeight="SemiBold"
+                    Click="LogoutButton_Click"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Right"/>
         </Grid>
 
-        <!-- Vehicles DataGrid -->
-        <DataGrid Grid.Row="2" Name="dgAssignedVehicles" AutoGenerateColumns="False" 
-                  Margin="20" IsReadOnly="True" SelectionMode="Single"
-                  CanUserAddRows="False" CanUserDeleteRows="False"
-                  CanUserReorderColumns="True" CanUserResizeColumns="True" 
-                  CanUserSortColumns="True" RowHeaderWidth="0"
-                  AlternatingRowBackground="#F5F5F5" MouseDoubleClick="dgAssignedVehicles_MouseDoubleClick">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Plate Number" Binding="{Binding Vehicle.PlateNumber}" Width="120"/>
-                <DataGridTextColumn Header="Brand" Binding="{Binding Vehicle.Brand}" Width="100"/>
-                <DataGridTextColumn Header="Model" Binding="{Binding Vehicle.Model}" Width="120"/>
-                <DataGridTextColumn Header="Year" Binding="{Binding Vehicle.ManufactureYear}" Width="60"/>
-                <DataGridTextColumn Header="Owner" Binding="{Binding Vehicle.Owner.FullName}" Width="150"/>
-                <DataGridTextColumn Header="Station" Binding="{Binding Station.FullName}" Width="150"/>
-                <DataGridTextColumn Header="Scheduled Date" Binding="{Binding Appointment.ScheduledDateTime, StringFormat={}{0:dd/MM/yyyy HH:mm}}" Width="150"/>
-                <DataGridTemplateColumn Header="Actions" Width="*">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="View Details" Click="ViewDetailsButton_Click" CommandParameter="{Binding}" 
-                                        Margin="5" Padding="10,5"/>
-                                <Button Content="Cancel Inspection" Click="CancelInspectionButton_Click" CommandParameter="{Binding}" 
-                                        Margin="5" Padding="10,5" Background="#FFDDDD"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+        <!-- Tab Control for Assigned and History -->
+        <TabControl Grid.Row="1" Margin="20,0,20,10" x:Name="tabVehicles">
+            <!-- Tab 1: Assigned Vehicles -->
+            <TabItem Header="Assigned Vehicles" FontWeight="SemiBold">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Assigned Vehicles DataGrid -->
+                    <DataGrid Grid.Row="0" Name="dgAssignedVehicles" AutoGenerateColumns="False" 
+                              IsReadOnly="True" SelectionMode="Single"
+                              CanUserAddRows="False" CanUserDeleteRows="False"
+                              CanUserReorderColumns="True" CanUserResizeColumns="True" 
+                              CanUserSortColumns="True" RowHeaderWidth="0"
+                              AlternatingRowBackground="#F5F5F5" MouseDoubleClick="dgAssignedVehicles_MouseDoubleClick">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Plate Number" Binding="{Binding Vehicle.PlateNumber}" Width="120"/>
+                            <DataGridTextColumn Header="Brand" Binding="{Binding Vehicle.Brand}" Width="100"/>
+                            <DataGridTextColumn Header="Model" Binding="{Binding Vehicle.Model}" Width="120"/>
+                            <DataGridTextColumn Header="Year" Binding="{Binding Vehicle.ManufactureYear}" Width="60"/>
+                            <DataGridTextColumn Header="Owner" Binding="{Binding Vehicle.Owner.FullName}" Width="150"/>
+                            <DataGridTextColumn Header="Station" Binding="{Binding Station.FullName}" Width="150"/>
+                            <DataGridTextColumn Header="Scheduled Date" Binding="{Binding Appointment.ScheduledDateTime, StringFormat={}{0:dd/MM/yyyy HH:mm}}" Width="150"/>
+                            <DataGridTemplateColumn Header="Actions" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Start Inspection" Click="StartInspectionButton_Click" CommandParameter="{Binding}" 
+                                                    Margin="5" Padding="10,5" Background="#E3F2FD"/>
+                                            <Button Content="Cancel" Click="CancelInspectionButton_Click" CommandParameter="{Binding}" 
+                                                    Margin="5" Padding="10,5" Background="#FFDDDD"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Pagination Controls for Assigned Vehicles -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                        <Button Content="Previous" Name="btnAssignedPrevious" Click="AssignedPrevious_Click" Width="80" Margin="5"/>
+                        <TextBlock Name="txtAssignedPageInfo" Text="Page 1 of 1" VerticalAlignment="Center" Margin="10,0"/>
+                        <Button Content="Next" Name="btnAssignedNext" Click="AssignedNext_Click" Width="80" Margin="5"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
+                            <TextBlock Text="Page Size:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <ComboBox Name="cmbAssignedPageSize" SelectionChanged="AssignedPageSize_SelectionChanged" Width="50">
+                                <ComboBoxItem Content="5"/>
+                                <ComboBoxItem Content="10" IsSelected="True"/>
+                                <ComboBoxItem Content="20"/>
+                                <ComboBoxItem Content="50"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
+                            <TextBlock Text="Total Records: " VerticalAlignment="Center" FontWeight="Bold"/>
+                            <TextBlock x:Name="txtAssignedRecordCount" Text="0" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- Tab 2: Inspection History -->
+            <TabItem Header="Inspection History" FontWeight="SemiBold">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Filter Controls for History (Status only) -->
+                    <Grid Grid.Row="0" Margin="0,10,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="Status:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <ComboBox Grid.Column="1" x:Name="cbHistoryStatus" Width="120" SelectionChanged="cbHistoryStatus_SelectionChanged" 
+                                  Margin="0,0,10,0" VerticalAlignment="Center">
+                            <ComboBoxItem Content="All" IsSelected="True"/>
+                            <ComboBoxItem Content="Pass"/>
+                            <ComboBoxItem Content="Fail"/>
+                            <ComboBoxItem Content="Cancelled"/>
+                        </ComboBox>
+                    </Grid>
+
+                    <!-- History DataGrid -->
+                    <!-- History DataGrid -->
+                    <DataGrid Grid.Row="1" Name="dgInspectionHistory" AutoGenerateColumns="False" 
+                          IsReadOnly="True" SelectionMode="Single"
+                          CanUserAddRows="False" CanUserDeleteRows="False"
+                          CanUserReorderColumns="True" CanUserResizeColumns="True" 
+                          CanUserSortColumns="True" RowHeaderWidth="0"
+                          AlternatingRowBackground="#F5F5F5" MouseDoubleClick="dgInspectionHistory_MouseDoubleClick">
+                        <DataGrid.Resources>
+                            <Style x:Key="CancelledRowStyle" TargetType="DataGridRow">
+                                <Setter Property="Background" Value="#F2F2F2" />
+                                <Setter Property="Foreground" Value="Gray" />
+                                <Setter Property="IsHitTestVisible" Value="True" />
+                                <Setter Property="ToolTip" Value="This inspection was cancelled and cannot be viewed in detail" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#E5E5E5" />
+                                        <Setter Property="Cursor" Value="No" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.Resources>
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Result}" Value="Cancelled">
+                                        <Setter Property="Background" Value="#F2F2F2" />
+                                        <Setter Property="Foreground" Value="Gray" />
+                                        <Setter Property="ToolTip" Value="This inspection was cancelled and cannot be viewed in detail" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Plate Number" Binding="{Binding Vehicle.PlateNumber}" Width="*"/>
+                            <DataGridTextColumn Header="Brand" Binding="{Binding Vehicle.Brand}" Width="*"/>
+                            <DataGridTextColumn Header="Model" Binding="{Binding Vehicle.Model}" Width="*"/>
+                            <DataGridTextColumn Header="Year" Binding="{Binding Vehicle.ManufactureYear}" Width="*"/>
+                            <DataGridTextColumn Header="Owner" Binding="{Binding Vehicle.Owner.FullName}" Width="*"/>
+                            <DataGridTextColumn Header="Inspection Date" Binding="{Binding InspectionDate, StringFormat={}{0:dd/MM/yyyy HH:mm}}" Width="*"/>
+                            <DataGridTextColumn Header="Result" Binding="{Binding Result}" Width="*">
+                                <DataGridTextColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Result}" Value="Pass">
+                                                <Setter Property="Foreground" Value="Green"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Result}" Value="Fail">
+                                                <Setter Property="Foreground" Value="OrangeRed"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Result}" Value="Cancelled">
+                                                <Setter Property="Foreground" Value="Gray"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGridTextColumn.CellStyle>
+                            </DataGridTextColumn>
+                            <DataGridTemplateColumn Header="Actions" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="View Details" 
+                            Click="ViewHistoryDetailsButton_Click" 
+                            CommandParameter="{Binding}" 
+                            Margin="5" Padding="10,5"
+                            IsEnabled="{Binding Result, Converter={StaticResource ResultNotCancelledConverter}}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+
+                    <!-- Pagination Controls for History -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                        <Button Content="Previous" Name="btnHistoryPrevious" Click="HistoryPrevious_Click" Width="80" Margin="5"/>
+                        <TextBlock Name="txtHistoryPageInfo" Text="Page 1 of 1" VerticalAlignment="Center" Margin="10,0"/>
+                        <Button Content="Next" Name="btnHistoryNext" Click="HistoryNext_Click" Width="80" Margin="5"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
+                            <TextBlock Text="Page Size:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <ComboBox Name="cmbHistoryPageSize" SelectionChanged="HistoryPageSize_SelectionChanged" Width="50">
+                                <ComboBoxItem Content="5"/>
+                                <ComboBoxItem Content="10" IsSelected="True"/>
+                                <ComboBoxItem Content="20"/>
+                                <ComboBoxItem Content="50"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
+                            <TextBlock Text="Total Records: " VerticalAlignment="Center" FontWeight="Bold"/>
+                            <TextBlock x:Name="txtHistoryRecordCount" Text="0" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
 
         <!-- Footer -->
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,10,20,20">
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,10,20,20">
             <Button Content="Refresh" Width="120" Height="30" Click="RefreshButton_Click" Margin="0,0,10,0"/>
             <Button Content="Close" Width="120" Height="30" Click="CloseButton_Click"/>
         </StackPanel>

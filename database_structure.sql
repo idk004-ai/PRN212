@@ -45,7 +45,7 @@ CREATE TABLE InspectionRecords (
     CO2Emission DECIMAL(5,2) NOT NULL,
     HCEmission DECIMAL(5,2) NOT NULL,
     Comments NVARCHAR(MAX),
-    CONSTRAINT CHK_InspectionResult CHECK (Result IN ('Pass', 'Fail', 'Testing')),
+    CONSTRAINT CHK_InspectionResult CHECK (Result IN ('Pass', 'Fail', 'Testing', 'Cancelled')),
     CONSTRAINT FK_InspectionRecords_Vehicles FOREIGN KEY (VehicleID) REFERENCES Vehicles(VehicleID),
     CONSTRAINT FK_InspectionRecords_Stations FOREIGN KEY (StationID) REFERENCES Users(UserID),
     CONSTRAINT FK_InspectionRecords_Users FOREIGN KEY (InspectorID) REFERENCES Users(UserID),

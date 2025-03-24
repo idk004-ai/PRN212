@@ -1,4 +1,5 @@
-﻿using QuanLiKhiThai.DAO.Interface;
+﻿using QuanLiKhiThai.Context;
+using QuanLiKhiThai.DAO.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace QuanLiKhiThai.DAO
 {
     class InspectionAppointmentDAO : IInspectionAppointmentDAO
     {
-        bool IServiceDAO<InspectionAppointment>.Add(InspectionAppointment entity)
+        public bool Add(InspectionAppointment entity)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -20,7 +21,7 @@ namespace QuanLiKhiThai.DAO
         }
 
 
-        bool IServiceDAO<InspectionAppointment>.Delete(int id)
+        public bool Delete(int id)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -34,7 +35,7 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        IEnumerable<InspectionAppointment> IServiceDAO<InspectionAppointment>.GetAll()
+        public IEnumerable<InspectionAppointment> GetAll()
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -42,7 +43,7 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        InspectionAppointment? IServiceDAO<InspectionAppointment>.GetById(int id)
+        public InspectionAppointment? GetById(int id)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -50,7 +51,7 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        IEnumerable<InspectionAppointment> IInspectionAppointmentDAO.GetByVehicleAndStation(int vehicleId, int stationId)
+        public IEnumerable<InspectionAppointment> GetByVehicleAndStation(int vehicleId, int stationId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -60,15 +61,7 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        InspectionAppointment IInspectionAppointmentDAO.GetLast(List<InspectionAppointment> appointments)
-        {
-            using (var db = new QuanLiKhiThaiContext())
-            {
-                return appointments.OrderByDescending(a => a.CreatedAt).FirstOrDefault();
-            }
-        }
-
-        bool IInspectionAppointmentDAO.HavePendingAppointment(int vehicleId)
+        public bool HavePendingAppointment(int vehicleId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -76,13 +69,61 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        bool IServiceDAO<InspectionAppointment>.Update(InspectionAppointment entity)
+        public bool Update(InspectionAppointment entity)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
                 db.Update(entity);
                 return db.SaveChanges() > 0;
             }
+        }
+
+        public bool CancelAppointment(
+            InspectionAppointment appointment, 
+            UserContext station, 
+            string plateNumber,
+            string fullName,
+            string reason,
+            Window? windowToClose = null)
+        {
+
+            var operations = new Dictionary<string, Func<bool>>
+            {
+                {
+                    "Cancel appointment",
+                    () =>
+                    {
+                        appointment.Status = Constants.STATUS_CANCELLED;
+                        return Update(appointment);
+                    }
+                }
+            };
+
+            Log logEntry = new Log
+            {
+                UserId = station.UserId,
+                Action = $"Cancelled appointment for vehicle {plateNumber}",
+                Timestamp = DateTime.Now
+            };
+
+
+            string successMessage = $"Appointment for vehicle {plateNumber} has been cancelled at {station}.";
+            string errorMessage = "Failed to cancel inspection";
+
+            bool result = TransactionHelper.ExecuteTransaction(
+                operations,
+                logEntry,
+                notification: null,
+                successMessage,
+                errorMessage
+            );
+
+            if (result && windowToClose != null)
+            {
+                windowToClose.Close();
+            }
+
+            return result;
         }
     }
 }

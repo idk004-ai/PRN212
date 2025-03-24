@@ -10,8 +10,7 @@ namespace QuanLiKhiThai.DAO.Interface
 {
     public interface IInspectionRecordDAO : IServiceDAO<InspectionRecord>      
     {
-        InspectionRecord? GetLastRecordByVehicleId(int vehicleId);
-        InspectionRecord? GetCurrentRecordByVehicleId(int vehicleId);
+        List<InspectionRecord> GetRecordByVehicle(int vehicleId);
         InspectionRecord? GetRecordByAppointment(int appointmentId);
         List<InspectionRecord> GetTestingRecordsByInspectorId(int inspectorId);
         public bool AssignInspector(
@@ -21,21 +20,23 @@ namespace QuanLiKhiThai.DAO.Interface
             string vehiclePlateNumber,
             int stationId,
             string stationFullName,
-            Window windowToClose = null
+            Window? windowToClose = null
         );
         public bool RecordInspectionResult(
             InspectionRecord record,
             UserContext inspector,
             string vehiclePlateNumber,
             string stationFullName,
-            Window windowToClose = null
+            Window? windowToClose = null
         );
         public bool CancelInspection(
             InspectionRecord inspectionRecord,
             UserContext inspector,
             string vehiclePlateNumber,
             string stationFullName,
-            Window windowToClose = null
+            string cancellationReason,
+            Window? windowToClose = null,
+            bool isSystemCancellation = false
         );
         List<InspectionRecord> GetRecordInDateRange(DateTime startDate, DateTime endDate);
     }

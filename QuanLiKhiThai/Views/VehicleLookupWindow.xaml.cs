@@ -71,7 +71,8 @@ namespace QuanLiKhiThai.Views
                 DisplayVehicleInfo();
 
                 // Get the latest inspection record
-                _latestInspection = _inspectionRecordDAO.GetLastRecordByVehicleId(_currentVehicle.VehicleId);
+                List<InspectionRecord> records = _inspectionRecordDAO.GetRecordByVehicle(_currentVehicle.VehicleId);
+                _latestInspection = records.OrderByDescending(r => r.InspectionDate).FirstOrDefault();
 
                 // Display inspection information
                 DisplayInspectionInfo();

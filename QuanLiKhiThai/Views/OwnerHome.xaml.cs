@@ -1,4 +1,5 @@
 ﻿using QuanLiKhiThai.DAO.Interface;
+using QuanLiKhiThai.Views;
 using System.Windows;
 
 namespace QuanLiKhiThai
@@ -38,6 +39,11 @@ namespace QuanLiKhiThai
         {
             _navigationService.NavigateTo<Login>();
             this.Close();
+        }
+
+        private void EditProfileButton_Click(object sender, RoutedEventArgs e)
+        {
+            _navigationService.NavigateTo<EditProfileWindow>();
         }
     }
 }

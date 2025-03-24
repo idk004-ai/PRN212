@@ -21,7 +21,8 @@ class TransactionHelper
         Log? logEntry = null,
         Notification? notification = null,
         string? successMessage = null,
-        string errorMessage = "Transaction failed"
+        string errorMessage = "Transaction failed",
+        bool isSystemTransaction = false
     )
     {
         bool success = false;
@@ -105,7 +106,7 @@ class TransactionHelper
                         transactionScope.Complete();
                         success = true;
 
-                        if (!string.IsNullOrEmpty(successMessage))
+                        if (!string.IsNullOrEmpty(successMessage) && !isSystemTransaction)
                         {
                             MessageBox.Show(successMessage, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
@@ -116,7 +117,10 @@ class TransactionHelper
                 {
                     string detailedError = $"{errorMessage}: Failed at operation '{failedOperation}'";
                     LogError(detailedError, null);
-                    MessageBox.Show(detailedError, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (!isSystemTransaction)
+                    {
+                        MessageBox.Show(detailedError, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
         }
@@ -124,7 +128,7 @@ class TransactionHelper
         {
             string fullErrorMessage = $"{errorMessage}: {ex.Message}";
             LogError(fullErrorMessage, ex);
-            MessageBox.Show(fullErrorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            if (!isSystemTransaction) MessageBox.Show(fullErrorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
         return success;
     }
@@ -139,7 +143,7 @@ class TransactionHelper
         try
         {
             // Get current user ID or use a system account ID if no user is logged in
-            int userId = UserContext.Current?.UserId ?? 1; // 1 could be your system account ID
+            int userId = UserContext.Current?.UserId ?? Constants.SYSTEM_USER_ID; // 1 could be your system account ID
 
             Log errorLog = new Log
             {

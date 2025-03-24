@@ -1,36 +1,166 @@
 ﻿<Window x:Class="QuanLiKhiThai.RegisterVehicle"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Register Vehicle" Height="450" Width="800">
+        Title="Vehicle Management" Height="600" Width="900">
     <Grid Background="Beige">
-        <StackPanel Margin="20">
-            <TextBlock Text="Register Vehicle" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <TextBlock Text="Plate Number" Width="100" VerticalAlignment="Center"/>
-                <TextBox Width="200" VerticalAlignment="Center" Name="txtPlateNumber"/>
-                <TextBlock Text="Format: 43A-12345" Margin="10,0,0,0" Foreground="Gray" VerticalAlignment="Center"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <TextBlock Text="Brand" Width="100" VerticalAlignment="Center"/>
-                <TextBox Width="200" VerticalAlignment="Center" Name="txtBrand"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <TextBlock Text="Model" Width="100" VerticalAlignment="Center"/>
-                <TextBox Width="200" VerticalAlignment="Center" Name="txtModel"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <TextBlock Text="Manufacture Year" Width="100" VerticalAlignment="Center"/>
-                <TextBox Width="200" VerticalAlignment="Center" Name="txtManufactureYear" 
-                         PreviewTextInput="TxtManufactureYear_PreviewTextInput"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <TextBlock Text="Engine Number" Width="100" VerticalAlignment="Center"/>
-                <TextBox Width="200" VerticalAlignment="Center" Name="txtEngineNumber"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Content="Register" Width="100" Margin="0,10,0,0" Click="RegisterVehicleButton_Click"/>
-                <Button Content="Back" Width="100" Margin="10,10,0,0" Click="BackButton_Click"/>
-            </StackPanel>
-        </StackPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header with Back button moved to top-right -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="Vehicle Management" FontSize="24" FontWeight="Bold" Margin="20,10,0,10"/>
+
+            <Button Grid.Column="1" 
+                    Content="Back to Home" 
+                    Width="120" 
+                    Height="30" 
+                    Background="#3F51B5" 
+                    Foreground="White"
+                    HorizontalAlignment="Right" 
+                    Margin="0,10,20,10"
+                    Click="BackButton_Click"/>
+        </Grid>
+
+        <!-- Tab Control -->
+        <TabControl Grid.Row="1" x:Name="MainTabControl" Margin="20,0,20,20">
+            <!-- Register Vehicle Tab -->
+            <TabItem Header="Register New Vehicle" FontSize="14">
+                <StackPanel Margin="20">
+                    <TextBlock Text="Register Vehicle" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="Plate Number" Width="150" VerticalAlignment="Center"/>
+                        <TextBox Width="250" VerticalAlignment="Center" Name="txtPlateNumber"/>
+                        <TextBlock Text="Format: 43A-12345" Margin="10,0,0,0" Foreground="Gray" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="Brand" Width="150" VerticalAlignment="Center"/>
+                        <TextBox Width="250" VerticalAlignment="Center" Name="txtBrand"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="Model" Width="150" VerticalAlignment="Center"/>
+                        <TextBox Width="250" VerticalAlignment="Center" Name="txtModel"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="Manufacture Year" Width="150" VerticalAlignment="Center"/>
+                        <TextBox Width="250" VerticalAlignment="Center" Name="txtManufactureYear" 
+                                PreviewTextInput="TxtManufactureYear_PreviewTextInput"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="Engine Number" Width="150" VerticalAlignment="Center"/>
+                        <TextBox Width="250" VerticalAlignment="Center" Name="txtEngineNumber"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="Register" Width="120" Margin="0,10,0,0" Click="RegisterVehicleButton_Click"
+                                Background="#4CAF50" Foreground="White" Height="30"/>
+                        <Button Content="Clear" Width="120" Margin="10,10,0,0" Click="ClearButton_Click" Height="30"/>
+                    </StackPanel>
+                </StackPanel>
+            </TabItem>
+
+            <!-- My Vehicles Tab -->
+            <TabItem Header="My Vehicles" FontSize="14">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Control Panel -->
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Your Registered Vehicles" FontSize="18" FontWeight="Bold"/>
+                            <TextBlock Text="View and manage your registered vehicles" FontSize="12" Foreground="#757575"/>
+                        </StackPanel>
+
+                        <Button Grid.Column="1" 
+                                x:Name="btnRefresh" 
+                                Content="Refresh List" 
+                                Width="100" 
+                                Height="30"
+                                Background="#2196F3"
+                                Foreground="White"
+                                Margin="0,0,0,0"
+                                Click="RefreshButton_Click"/>
+                    </Grid>
+
+                    <!-- Vehicles DataGrid -->
+                    <DataGrid Grid.Row="1" 
+                              x:Name="dgVehicles" 
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              CanUserAddRows="False" 
+                              CanUserDeleteRows="False"
+                              CanUserReorderColumns="True" 
+                              CanUserResizeColumns="True" 
+                              CanUserSortColumns="True"
+                              RowHeaderWidth="0"
+                              AlternatingRowBackground="#F5F5F5">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Plate Number" Binding="{Binding PlateNumber}" Width="100"/>
+                            <DataGridTextColumn Header="Brand" Binding="{Binding Brand}" Width="120"/>
+                            <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="120"/>
+                            <DataGridTextColumn Header="Year" Binding="{Binding ManufactureYear}" Width="80"/>
+                            <DataGridTextColumn Header="Engine Number" Binding="{Binding EngineNumber}" Width="150"/>
+                            <DataGridTemplateColumn Header="Actions" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Edit" 
+                                                    Margin="5,2" 
+                                                    Padding="15,2"
+                                                    Click="EditVehicleButton_Click"
+                                                    CommandParameter="{Binding}"/>
+                                            <Button Content="Delete" 
+                                                    Margin="5,2" 
+                                                    Padding="15,2"
+                                                    Background="#FFDDDD"
+                                                    Click="DeleteVehicleButton_Click"
+                                                    CommandParameter="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+
+                        <!-- Empty State Message -->
+                        <DataGrid.Style>
+                            <Style TargetType="DataGrid">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Items.Count, RelativeSource={RelativeSource Self}}" Value="0">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Border Background="White" BorderBrush="#DDDDDD" BorderThickness="1" Padding="20">
+                                                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                            <TextBlock Text="You don't have any registered vehicles yet" 
+                                                                      FontSize="16" FontWeight="Normal" HorizontalAlignment="Center"/>
+                                                            <TextBlock Text="Register a new vehicle in the 'Register New Vehicle' tab" 
+                                                                      FontSize="14" Foreground="#757575" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.Style>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>

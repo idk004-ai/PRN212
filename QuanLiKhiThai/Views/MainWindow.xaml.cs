@@ -89,7 +89,7 @@ namespace QuanLiKhiThai
 
             Log logEntry = new Log
             {
-                UserId = 1, // System id or Admin id
+                UserId = Constants.SYSTEM_USER_ID, // System id
                 Action = $"New user registered: {user.Email} with role {Constants.Owner}",
                 Timestamp = DateTime.Now,
             };

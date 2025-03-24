@@ -10,6 +10,8 @@ namespace QuanLiKhiThai.ViewModel
     {
         public string PlateNumber { get; set; }
         public string EmailOwner { get; set; }
+        public DateTime? ScheduledDate { get; set; }
+        public bool IsOverdue => ScheduledDate.HasValue && ScheduledDate.Value < DateTime.Now;
 
         public VehicleCheckViewModel()
         {

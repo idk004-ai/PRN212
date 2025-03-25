@@ -1,5 +1,4 @@
 ﻿
-
 CREATE TABLE Users (
     UserID INT PRIMARY KEY IDENTITY(1,1),
     FullName NVARCHAR(100) NOT NULL,
@@ -11,6 +10,11 @@ CREATE TABLE Users (
     CONSTRAINT CHK_UserRole CHECK (Role IN ('Owner', 'Inspector', 'Station', 'Police'))
 );
 
+ALTER TABLE Users
+ADD IsEnabled BIT NOT NULL DEFAULT 0,
+	VerificationToken NVARCHAR(255) NULL,
+    TokenExpiry DATETIME NULL;
+
 CREATE TABLE Vehicles (
     VehicleID INT PRIMARY KEY IDENTITY(1,1),
     OwnerID INT NOT NULL,
@@ -21,6 +25,9 @@ CREATE TABLE Vehicles (
     EngineNumber NVARCHAR(100) NOT NULL,
     CONSTRAINT FK_Vehicles_Users FOREIGN KEY (OwnerID) REFERENCES Users(UserID)
 );
+
+ALTER TABLE Vehicles
+ADD isDeleted BIT NOT NULL DEFAULT 0;
 
 CREATE TABLE InspectionAppointments (
 	AppointmentID INT PRIMARY KEY IDENTITY(1,1),
@@ -122,3 +129,40 @@ CREATE TABLE Logs (
     Timestamp DATETIME DEFAULT GETDATE(),
     CONSTRAINT FK_Logs_Users FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
+
+CREATE TABLE ViolationRecords (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    VehicleId INT NOT NULL,
+    OfficerId INT NOT NULL,
+    IssueDate DATETIME NOT NULL,
+    Location NVARCHAR(255) NOT NULL,
+    ViolationType NVARCHAR(100) NOT NULL,
+    FineAmount DECIMAL(10, 2) NOT NULL,
+    Notes NVARCHAR(MAX) NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT GETUTCDATE(),
+    
+    CONSTRAINT FK_ViolationRecords_Vehicles FOREIGN KEY (VehicleId) 
+        REFERENCES Vehicles(VehicleId),
+    
+    CONSTRAINT FK_ViolationRecords_Officers FOREIGN KEY (OfficerId) 
+        REFERENCES Users(UserID)
+);
+
+GO
+
+CREATE TRIGGER TR_ViolationRecords_OfficerRole
+ON ViolationRecords
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1 
+        FROM inserted i
+        LEFT JOIN Users u ON i.OfficerId = u.UserID
+        WHERE u.Role <> 'Police' OR u.Role IS NULL
+    )
+    BEGIN
+        ROLLBACK TRANSACTION;
+        THROW 50000, 'OfficerId must reference a User with the Police role.', 1;
+    END
+END;

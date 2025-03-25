@@ -11,7 +11,7 @@ namespace QuanLiKhiThai.Helper
 {
     public class ConfigurationHelper
     {
-        private static readonly string ConfigFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App.config"); // get configuration from AppConfig.xml
+        private static readonly string ConfigFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App.config"); 
 
         private readonly IValidationLogger _logger;
         private static IValidationLogger? _staticLogger;
@@ -38,14 +38,10 @@ namespace QuanLiKhiThai.Helper
         public static void LogStaticConfigurationError(string message)
         {
             _staticLogger?.LogValidationError(message);
-
-            // Luôn đảm bảo ghi ra debug để phòng hờ logger chưa được khởi tạo
-            System.Diagnostics.Debug.WriteLine($"[CONFIG ERROR] {message}");
         }
 
         static ConfigurationHelper()
         {
-            // Creat default config file if it doesn't exist
             if (!File.Exists(ConfigFilePath))
             {
                 LogStaticConfigurationError("Configuration file not found. Creating default configuration file...");

@@ -8,8 +8,6 @@
         mc:Ignorable="d"
         Title="Inspector Management" Height="600" Width="900"
         WindowStartupLocation="CenterScreen">
-        
-    <!-- Thêm Resources ở đây, ngay sau phần khai báo Window và trước Grid -->
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <helper:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>

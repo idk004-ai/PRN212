@@ -18,9 +18,13 @@ public partial class Vehicle
 
     public string EngineNumber { get; set; } = null!;
 
+    public bool IsDeleted { get; set; }
+
     public virtual ICollection<InspectionAppointment> InspectionAppointments { get; set; } = new List<InspectionAppointment>();
 
     public virtual ICollection<InspectionRecord> InspectionRecords { get; set; } = new List<InspectionRecord>();
 
     public virtual User Owner { get; set; } = null!;
+
+    public virtual ICollection<ViolationRecord> ViolationRecords { get; set; } = new List<ViolationRecord>();
 }

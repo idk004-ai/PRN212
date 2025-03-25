@@ -59,5 +59,7 @@ namespace QuanLiKhiThai.DAO.Interface
             Vehicle vehicle,
             Window? windowToClose = null
             );
+
+        bool VerifyAccount(string email, string token);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO.Interface;
+using QuanLiKhiThai.Helper;
 using QuanLiKhiThai.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -22,8 +23,9 @@ namespace QuanLiKhiThai.DAO
 
         public void NavigateTo<T>() where T : Window
         {
-            var window = _serviceProvider.GetRequiredService<T>();
+            var window = WindowManager.GetOrCreate(() => _serviceProvider.GetRequiredService<T>());
             window.Show();
+            window.Activate();
         }
 
         public void NavigateTo<T, TParameter>(TParameter parameter) where T : Window
@@ -36,7 +38,9 @@ namespace QuanLiKhiThai.DAO
                     var window = factory.DynamicInvoke(parameter) as T;
                     if (window != null)
                     {
+                        WindowManager.RegisterWindow(window);
                         window.Show();
+                        window.Activate();
                         return;
                     }
                 }
@@ -54,7 +58,9 @@ namespace QuanLiKhiThai.DAO
                 {
                     // Create instance with the parameter
                     var window = (T)constructor.Invoke(new object[] { parameter });
+                    WindowManager.RegisterWindow(window);
                     window.Show();
+                    window.Activate();
                     return;
                 }
             }

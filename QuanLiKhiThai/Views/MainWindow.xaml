@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QuanLiKhiThai"
         mc:Ignorable="d"
-        Title="Register" Height="450" Width="800">
+        Title="Register" Height="550" Width="800">
     <Grid Background="Beige">
         <Menu>
             <MenuItem Header="Show Logs">
@@ -14,6 +14,16 @@
         </Menu>
         <StackPanel Margin="20">
             <TextBlock Text="Register" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <TextBlock Text="Role" Width="100" VerticalAlignment="Center"/>
+                <ComboBox Name="cmbRole" Width="200" VerticalAlignment="Center" SelectionChanged="cmbRole_SelectionChanged">
+                    <ComboBoxItem Content="Vehicle Owner" Tag="Owner"/>
+                    <ComboBoxItem Content="Station" Tag="Station"/>
+                    <ComboBoxItem Content="Police" Tag="Police"/>
+                </ComboBox>
+            </StackPanel>
+
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Full Name" Width="100" VerticalAlignment="Center"/>
                 <TextBox Width="200" VerticalAlignment="Center" Name="txtFullName"/>
@@ -38,9 +48,44 @@
                 <TextBlock Text="Address" Width="100" VerticalAlignment="Center"/>
                 <TextBox Width="200" VerticalAlignment="Center" Name="txtAddress"/>
             </StackPanel>
+
+            <!-- Thêm thông tin bổ sung cho Station -->
+            <StackPanel Name="panelStationInfo" Visibility="Collapsed" Margin="0,10,0,0">
+                <Border BorderBrush="LightGray" BorderThickness="0,1,0,0" Padding="0,10,0,10">
+                    <StackPanel>
+                        <TextBlock Text="Station Information" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="Station Code" Width="100" VerticalAlignment="Center"/>
+                            <TextBox Width="200" VerticalAlignment="Center" Name="txtStationCode"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Thêm thông tin bổ sung cho Police -->
+            <StackPanel Name="panelPoliceInfo" Visibility="Collapsed" Margin="0,10,0,0">
+                <Border BorderBrush="LightGray" BorderThickness="0,1,0,0" Padding="0,10,0,10">
+                    <StackPanel>
+                        <TextBlock Text="Police Information" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="Badge Number" Width="100" VerticalAlignment="Center"/>
+                            <TextBox Width="200" VerticalAlignment="Center" Name="txtBadgeNumber"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="Department" Width="100" VerticalAlignment="Center"/>
+                            <TextBox Width="200" VerticalAlignment="Center" Name="txtDepartment"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <TextBlock Name="tbDisclaimer" TextWrapping="Wrap" Margin="0,10,0,10" FontStyle="Italic">
+                By registering, you agree to receive a verification email. Your account will be disabled until verification.
+            </TextBlock>
+
             <Button Content="Register" Width="100" HorizontalAlignment="Center" Margin="0,20,0,0" Click="RegisterButton_Click"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                <TextBlock Text="Already have an account ?" />
+                <TextBlock Text="Already have an account? " />
                 <TextBlock Text="Login" Foreground="Blue" TextDecorations="Underline" HorizontalAlignment="Center" MouseLeftButtonUp="LoginTextBlock_MouseLeftButtonUp"/>
             </StackPanel>
         </StackPanel>

@@ -19,31 +19,12 @@ namespace QuanLiKhiThai.DAO
             _notifier = notifier;
         }
 
-        /// <summary>
-        /// Validates scheduling and shows appropriate notifications
-        /// </summary>
-        /// <param name="vehicleId">Vehicle ID to validate</param>
-        /// <param name="stationId">Station ID for validation</param>
-        /// <returns>True if validation passes or user confirms special case, false otherwise</returns>
         public bool ValidateScheduling(int vehicleId, int stationId)
         {
             ValidationResult result = _validator.ValidateScheduling(vehicleId, stationId);
             return _notifier.ProcessValidationResult(result);
         }
 
-
-        /// <summary>
-        /// Validates assignment and shows appropriate notifications
-        /// </summary>
-        public bool ValidateAssignment(int appointmentId)
-        {
-            ValidationResult result = _validator.ValidateAssignment(appointmentId);
-            return _notifier.ProcessValidationResult(result);
-        }
-
-        /// <summary>
-        /// Validates data consistency and shows appropriate notifications
-        /// </summary>
         public bool ValidateDataConsistency(int appointmentId, string? newStatus = null)
         {
             ValidationResult result = _validator.ValidateDataConsistency(appointmentId, newStatus);

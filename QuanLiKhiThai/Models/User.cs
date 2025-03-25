@@ -18,6 +18,12 @@ public partial class User
 
     public string Address { get; set; } = null!;
 
+    public bool IsEnabled { get; set; }
+
+    public string? VerificationToken { get; set; }
+
+    public DateTime? TokenExpiry { get; set; }
+
     public virtual ICollection<InspectionAppointment> InspectionAppointments { get; set; } = new List<InspectionAppointment>();
 
     public virtual ICollection<InspectionRecord> InspectionRecordInspectors { get; set; } = new List<InspectionRecord>();
@@ -33,4 +39,6 @@ public partial class User
     public virtual ICollection<StationInspector> StationInspectorStations { get; set; } = new List<StationInspector>();
 
     public virtual ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
+
+    public virtual ICollection<ViolationRecord> ViolationRecords { get; set; } = new List<ViolationRecord>();
 }

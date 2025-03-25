@@ -5,6 +5,5 @@
         IEnumerable<Vehicle> GetVehicleByOwnerId(int ownerId);
         IEnumerable<Vehicle> GetVehicleWithPendingStatus(int stationId);
         Vehicle? GetByPlateNumber(string plateNumber);
-        Vehicle? GetVehicleByStationId(int stationId);
     }
 }

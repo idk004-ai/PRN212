@@ -156,52 +156,6 @@ namespace QuanLiKhiThai.DAO
             return new ValidationResult { IsValid = true };
         }
 
-        public ValidationResult ValidateAssignment(int appointmentId)
-        {
-            InspectionAppointment? appointment = _inspectionAppointmentDAO.GetById(appointmentId);
-            if (appointment == null)
-            {
-                string errorMessage = "Appointment not found";
-                _logger.LogValidationError(errorMessage);
-                return new ValidationResult
-                {
-                    IsValid = false,
-                    Message = errorMessage,
-                    Title = "Appointment not found",
-                    ResultType = ValidationResultType.Error
-                };
-            }
-
-            if (appointment.Status != Constants.STATUS_PENDING)
-            {
-                string errorMessage = "This appointment is not pending. Assignment is not allowed.";
-                _logger.LogValidationError(errorMessage);
-                return new ValidationResult
-                {
-                    IsValid = false,
-                    Message = errorMessage,
-                    Title = "Invalid Appointment Status",
-                    ResultType = ValidationResultType.Error
-                };
-            }
-
-            InspectionRecord? record = _inspectionRecordDAO.Value.GetRecordByAppointment(appointmentId);
-            if (record != null)
-            {
-                string errorMessage = "An inspector has already been assigned to this appointment.";
-                _logger.LogValidationError(errorMessage);
-                return new ValidationResult
-                {
-                    IsValid = false,
-                    Message = errorMessage,
-                    Title = "Inspector already assigned",
-                    ResultType = ValidationResultType.Error
-                };
-            }
-
-            return new ValidationResult { IsValid = true };
-        }
-
         public ValidationResult ValidateDataConsistency(int appointmentId, string? newStatus)
         {
             int currentUserId = UserContext.Current?.UserId ?? Constants.SYSTEM_USER_ID;

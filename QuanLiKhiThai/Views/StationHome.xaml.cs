@@ -1,5 +1,6 @@
 ﻿using QuanLiKhiThai.Context;
 using QuanLiKhiThai.DAO.Interface;
+using QuanLiKhiThai.Helper;
 using QuanLiKhiThai.Views;
 using System.Windows;
 
@@ -37,7 +38,7 @@ namespace QuanLiKhiThai
 
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
-            // Log out and return to login screen
+            WindowManager.CloseAllExcept(typeof(LogsMonitorWindow));
             _navigationService.NavigateTo<Login>();
             this.Close();
         }

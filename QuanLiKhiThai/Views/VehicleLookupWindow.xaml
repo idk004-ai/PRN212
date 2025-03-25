@@ -32,7 +32,7 @@
                 </StackPanel>
 
                 <Button Grid.Column="1" x:Name="btnBack" 
-                        Content="BACK" Padding="15,8" 
+                        Content="LOGOUT" Padding="15,8" 
                         Background="#2C3E50" Foreground="White" 
                         BorderThickness="0" Click="btnBack_Click"/>
             </Grid>
@@ -237,9 +237,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Column="0" Text="© 2025 - Emissions Inspection Management System" 
-                           VerticalAlignment="Center"/>
 
                 <Button Grid.Column="1" x:Name="btnReport" 
                         Content="REPORT VIOLATION" Padding="15,8" 

@@ -1,4 +1,5 @@
-﻿using QuanLiKhiThai.DAO.Interface;
+﻿using Microsoft.EntityFrameworkCore;
+using QuanLiKhiThai.DAO.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace QuanLiKhiThai.DAO
 {
     public class StationInspectorDAO : IStationInspectorDAO
     {
-        bool IServiceDAO<StationInspector>.Add(StationInspector entity)
+        public bool Add(StationInspector entity)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -18,12 +19,12 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        bool IServiceDAO<StationInspector>.Delete(int id)
+        public bool Delete(int id)
         {
             throw new NotImplementedException();
         }
 
-        IEnumerable<StationInspector> IServiceDAO<StationInspector>.GetAll()
+        public IEnumerable<StationInspector> GetAll()
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -31,7 +32,7 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        StationInspector? IServiceDAO<StationInspector>.GetById(int id)
+        public StationInspector? GetById(int id)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -39,7 +40,7 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        StationInspector? IStationInspectorDAO.GetByStationAndInspectorId(int stationId, int inspectorId)
+        public StationInspector? GetByStationAndInspectorId(int stationId, int inspectorId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -48,7 +49,7 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        IEnumerable<StationInspector> IStationInspectorDAO.GetByStationId(int stationId)
+        public IEnumerable<StationInspector> GetByStationId(int stationId)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
@@ -58,12 +59,22 @@ namespace QuanLiKhiThai.DAO
             }
         }
 
-        bool IServiceDAO<StationInspector>.Update(StationInspector entity)
+        public bool Update(StationInspector entity)
         {
             using (var db = new QuanLiKhiThaiContext())
             {
                 db.StationInspectors.Update(entity);
                 return db.SaveChanges() > 0;
+            }
+        }
+
+        public StationInspector? GetByInspectorId(int inspectorId)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                return db.StationInspectors
+                    .Include(si => si.Station)
+                    .FirstOrDefault(si => si.InspectorId == inspectorId);
             }
         }
     }

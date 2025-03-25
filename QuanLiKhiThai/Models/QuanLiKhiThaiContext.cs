@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 public partial class QuanLiKhiThaiContext : DbContext
 {
@@ -29,22 +27,17 @@ public partial class QuanLiKhiThaiContext : DbContext
 
     public virtual DbSet<Vehicle> Vehicles { get; set; }
 
+    public virtual DbSet<ViolationRecord> ViolationRecords { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        var builder = new ConfigurationBuilder();
-        builder.SetBasePath(Directory.GetCurrentDirectory());
-        builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-        var configuration = builder.Build();
-        optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
-    }
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=.;uid=sa;password=123;database=QuanLiKhiThai;Encrypt=True;TrustServerCertificate=True;");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=.;uid=sa;password=123;database=QuanLiKhiThai;Encrypt=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<InspectionAppointment>(entity =>
         {
-            entity.HasKey(e => e.AppointmentId).HasName("PK__Inspecti__8ECDFCA2D5048399");
+            entity.HasKey(e => e.AppointmentId).HasName("PK__Inspecti__8ECDFCA219870EA0");
 
             entity.Property(e => e.AppointmentId).HasColumnName("AppointmentID");
             entity.Property(e => e.CreatedAt)
@@ -70,7 +63,7 @@ public partial class QuanLiKhiThaiContext : DbContext
 
         modelBuilder.Entity<InspectionRecord>(entity =>
         {
-            entity.HasKey(e => e.RecordId).HasName("PK__Inspecti__FBDF78C9DCC1987F");
+            entity.HasKey(e => e.RecordId).HasName("PK__Inspecti__FBDF78C99D69050F");
 
             entity.Property(e => e.RecordId).HasColumnName("RecordID");
             entity.Property(e => e.AppointmentId).HasColumnName("AppointmentID");
@@ -111,7 +104,7 @@ public partial class QuanLiKhiThaiContext : DbContext
 
         modelBuilder.Entity<Log>(entity =>
         {
-            entity.HasKey(e => e.LogId).HasName("PK__Logs__5E5499A8D152C2C8");
+            entity.HasKey(e => e.LogId).HasName("PK__Logs__5E5499A88C9856F4");
 
             entity.Property(e => e.LogId).HasColumnName("LogID");
             entity.Property(e => e.Action).HasMaxLength(100);
@@ -128,7 +121,7 @@ public partial class QuanLiKhiThaiContext : DbContext
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__20CF2E3237A7B214");
+            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__20CF2E329B67B96C");
 
             entity.Property(e => e.NotificationId).HasColumnName("NotificationID");
             entity.Property(e => e.IsRead).HasDefaultValue(false);
@@ -145,7 +138,7 @@ public partial class QuanLiKhiThaiContext : DbContext
 
         modelBuilder.Entity<StationInspector>(entity =>
         {
-            entity.HasKey(e => e.StationInspectorId).HasName("PK__StationI__E88862A0DB9FD48C");
+            entity.HasKey(e => e.StationInspectorId).HasName("PK__StationI__E88862A04AA0BBB5");
 
             entity.HasIndex(e => new { e.StationId, e.InspectorId }, "UQ_StationInspector").IsUnique();
 
@@ -170,9 +163,9 @@ public partial class QuanLiKhiThaiContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCACA10C8194");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC4EFDBA02");
 
-            entity.HasIndex(e => e.Email, "UQ__Users__A9D1053418F8597F").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__A9D10534913E9E1C").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.Email).HasMaxLength(100);
@@ -180,17 +173,20 @@ public partial class QuanLiKhiThaiContext : DbContext
             entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(15);
             entity.Property(e => e.Role).HasMaxLength(20);
+            entity.Property(e => e.TokenExpiry).HasColumnType("datetime");
+            entity.Property(e => e.VerificationToken).HasMaxLength(255);
         });
 
         modelBuilder.Entity<Vehicle>(entity =>
         {
-            entity.HasKey(e => e.VehicleId).HasName("PK__Vehicles__476B54B21D7D68B3");
+            entity.HasKey(e => e.VehicleId).HasName("PK__Vehicles__476B54B21137E6CE");
 
-            entity.HasIndex(e => e.PlateNumber, "UQ__Vehicles__03692624A69E8486").IsUnique();
+            entity.HasIndex(e => e.PlateNumber, "UQ__Vehicles__03692624B2242CE5").IsUnique();
 
             entity.Property(e => e.VehicleId).HasColumnName("VehicleID");
             entity.Property(e => e.Brand).HasMaxLength(50);
             entity.Property(e => e.EngineNumber).HasMaxLength(100);
+            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.Model).HasMaxLength(50);
             entity.Property(e => e.OwnerId).HasColumnName("OwnerID");
             entity.Property(e => e.PlateNumber).HasMaxLength(15);
@@ -199,6 +195,31 @@ public partial class QuanLiKhiThaiContext : DbContext
                 .HasForeignKey(d => d.OwnerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Vehicles_Users");
+        });
+
+        modelBuilder.Entity<ViolationRecord>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Violatio__3214EC07616866BE");
+
+            entity.ToTable(tb => tb.HasTrigger("TR_ViolationRecords_OfficerRole"));
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FineAmount).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.IssueDate).HasColumnType("datetime");
+            entity.Property(e => e.Location).HasMaxLength(255);
+            entity.Property(e => e.ViolationType).HasMaxLength(100);
+
+            entity.HasOne(d => d.Officer).WithMany(p => p.ViolationRecords)
+                .HasForeignKey(d => d.OfficerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ViolationRecords_Officers");
+
+            entity.HasOne(d => d.Vehicle).WithMany(p => p.ViolationRecords)
+                .HasForeignKey(d => d.VehicleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ViolationRecords_Vehicles");
         });
 
         OnModelCreatingPartial(modelBuilder);

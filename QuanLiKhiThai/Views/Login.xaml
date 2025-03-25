@@ -22,6 +22,15 @@
                 <TextBlock Text="Do not have account ? " />
                 <TextBlock Text="Register" Foreground="Blue" TextDecorations="Underline" HorizontalAlignment="Center" MouseLeftButtonUp="RegisterTextBlock_MouseLeftButtonUp"/>
             </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Text="Do not verify account? " />
+                <TextBlock Text="Verify" 
+               Foreground="Blue" 
+               TextDecorations="Underline" 
+               Cursor="Hand"
+               MouseLeftButtonUp="VerifyAccount_MouseLeftButtonUp"/>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Window>

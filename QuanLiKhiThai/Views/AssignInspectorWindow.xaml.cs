@@ -133,21 +133,20 @@ namespace QuanLiKhiThai
                     }
 
                     InspectionAppointment appointment = appointments.OrderByDescending(a => a.CreatedAt).First();
-
-                    // TODO3: Validate assignment
-                    if (!_validationService.ValidateAssignment(appointment.AppointmentId))
+                    if (appointment.Status != Constants.STATUS_PENDING)
                     {
+                        MessageBox.Show("Data inconsistency: This is an ongoing inspection. Please contact admin to resolve the problem",
+                            "Ongoing Inspection", MessageBoxButton.OK, MessageBoxImage.Information);
                         EnableAllAssignButtons();
                         return;
                     }
 
-
-                    // TODO4: Check whether any record for this appointment
-                    if (_inspectionRecordDAO.GetRecordByAppointment(appointment.AppointmentId) != null)
+                    var existingRecord = _inspectionRecordDAO.GetRecordByAppointment(appointment.AppointmentId);
+                    if (existingRecord != null && existingRecord.Result == Constants.RESULT_TESTING)
                     {
-                        MessageBox.Show("An inspector has already been assigned to this appointment.",
-                            "Already Assigned", MessageBoxButton.OK, MessageBoxImage.Information);
-                        this.Close();
+                        MessageBox.Show("Data inconsistency: This is an ongoing inspection. Please contact admin to resolve the problem",
+                            "Ongoing Inspection", MessageBoxButton.OK, MessageBoxImage.Information);
+                        EnableAllAssignButtons();
                         return;
                     }
 

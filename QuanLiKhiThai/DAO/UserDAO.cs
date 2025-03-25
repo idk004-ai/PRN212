@@ -125,5 +125,29 @@ namespace QuanLiKhiThai.DAO
                 return db.SaveChanges() > 0;
             }
         }
+
+        public bool VerifyAccount(string email, string token)
+        {
+            using (var db = new QuanLiKhiThaiContext())
+            {
+                var user = db.Users.FirstOrDefault(u => u.Email == email && u.VerificationToken == token);
+                if (user != null && !user.IsEnabled)
+                {
+                    if (user.TokenExpiry.HasValue && user.TokenExpiry.Value < DateTime.Now)
+                    {
+                        return false;
+                    }
+
+                    user.IsEnabled = true;
+                    user.VerificationToken = null;
+                    user.TokenExpiry = null;
+
+                    return db.SaveChanges() > 0;
+                }
+                return false;
+            }
+        }
+
+
     }
 }

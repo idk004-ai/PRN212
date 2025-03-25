@@ -26,13 +26,6 @@ namespace QuanLiKhiThai.DAO.Interface
         ValidationResult ValidateScheduling(int vehicleId, int stationId);
 
         /// <summary>
-        /// Validates the assignment of a vehicle to an inspector
-        /// </summary>
-        /// <param name="appointmentId">Id of appointment</param>
-        /// <returns>Validation result indicating if assignment is allowed</returns>
-        ValidationResult ValidateAssignment(int appointmentId);
-
-        /// <summary>
         /// Validates the data consistency of an appointment, optionally with a new status
         /// </summary>
         /// <param name="appointmentId">The id of appointment to validate</param>

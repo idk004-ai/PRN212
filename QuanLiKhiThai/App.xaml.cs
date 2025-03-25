@@ -4,6 +4,7 @@ using QuanLiKhiThai.DAO.Interface;
 using QuanLiKhiThai.Helper;
 using QuanLiKhiThai.ViewModel;
 using QuanLiKhiThai.Views;
+using System;
 using System.Windows;
 
 namespace QuanLiKhiThai
@@ -36,6 +37,7 @@ namespace QuanLiKhiThai
                 new Lazy<IInspectionRecordDAO>(() => sp.GetRequiredService<IInspectionRecordDAO>()));
             services.AddTransient<IStationInspectorDAO, StationInspectorDAO>();
             services.AddTransient<IInspectionValidator, InspectionValidator>();
+            services.AddTransient<IViolationRecordDAO, ViolationRecordDAO>();
             services.AddTransient<ValidationService>();
 
 
@@ -57,7 +59,6 @@ namespace QuanLiKhiThai
             services.AddTransient<EditProfileWindow>();
             services.AddTransient<OwnerHome>();
             services.AddTransient<StationHome>();
-            services.AddTransient<PoliceHomeWindow>();
             services.AddTransient<VehicleLookupWindow>();
             services.AddTransient<VehicleHistory>();
             services.AddTransient<RegisterVehicle>();
@@ -66,13 +67,16 @@ namespace QuanLiKhiThai
             services.AddTransient<InspectorVehicleListWindow>();
             services.AddTransient<LogsMonitorWindow>();
             services.AddTransient<ReportWindow>();
+            services.AddTransient<VerificationWindow>();
             services.AddTransient<Func<int, InspectorManagementWindow>>(provider =>
                 (stationId) =>
                 {
                     var userDAO = provider.GetRequiredService<IUserDAO>();
                     var stationInspectorDAO = provider.GetRequiredService<IStationInspectorDAO>();
                     var navigationService = provider.GetRequiredService<INavigationService>();
-                    return new InspectorManagementWindow(navigationService, userDAO, stationInspectorDAO, stationId);
+                    var inspectionRecordDAO = provider.GetRequiredService<IInspectionRecordDAO>();
+                    var inspectionAppointment = provider.GetRequiredService<IInspectionAppointmentDAO>();
+                    return new InspectorManagementWindow(navigationService, userDAO, stationInspectorDAO, stationId, inspectionRecordDAO, inspectionAppointment);
                 });
             services.AddTransient<Func<VehicleCheckViewModel, AssignInspectorWindow>>(provider =>
                 (viewModel) => {
@@ -114,6 +118,12 @@ namespace QuanLiKhiThai
                     var stationInspectorDAO = provider.GetRequiredService<IStationInspectorDAO>();
                     return new AddInspectorWindow(userDAO, stationInspectorDAO, parameters.StationId, parameters.InspectorId);
                 });
+            services.AddTransient<Func<Vehicle, ViolationRecordWindow>>(provider => 
+                (vehicle) =>
+                {
+                    var iviolationRecordDAO = provider.GetRequiredService<IViolationRecordDAO>();
+                    return new ViolationRecordWindow(vehicle, iviolationRecordDAO);
+                });
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -122,9 +132,8 @@ namespace QuanLiKhiThai
 
             // Lấy MainWindow từ DI container
             var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
-            mainWindow.Show();
+                mainWindow.Show();
 
-            // Khởi tạo LogsViewManager và mở cửa sổ log nếu cần
             var logsManager = _serviceProvider.GetRequiredService<LogsViewManager>();
             if (logsManager.AutoShowOnStartup)
             {

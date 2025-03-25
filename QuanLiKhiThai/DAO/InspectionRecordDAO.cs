@@ -83,6 +83,7 @@ namespace QuanLiKhiThai.DAO
             {
                 return db.InspectionRecords
                     .Where(i => i.AppointmentId == appointmentId)
+                    .OrderByDescending(i => i.RecordId)
                     .FirstOrDefault();
             }
         }

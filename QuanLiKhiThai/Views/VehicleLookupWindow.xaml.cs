@@ -1,4 +1,5 @@
 ﻿using QuanLiKhiThai.DAO.Interface;
+using QuanLiKhiThai.Helper;
 using System;
 using System.Linq;
 using System.Windows;
@@ -189,26 +190,27 @@ namespace QuanLiKhiThai.Views
 
         private void btnBack_Click(object sender, RoutedEventArgs e)
         {
+            WindowManager.CloseAllExcept(typeof(LogsMonitorWindow));
+            _navigationService.NavigateTo<Login>();
             this.Close();
         }
 
         private void btnReport_Click(object sender, RoutedEventArgs e)
         {
-            //if (_currentVehicle == null)
-            //{
-            //    MessageBox.Show("Please search for a vehicle first.", "No Vehicle Selected", MessageBoxButton.OK, MessageBoxImage.Warning);
-            //    return;
-            //}
+            if (_currentVehicle == null)
+            {
+                MessageBox.Show("Please search for a vehicle first.", "No Vehicle Selected", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-            //// Navigate to violation record window with current vehicle information
-            //try
-            //{
-            //    _navigationService.NavigateTo<ViolationRecordWindow, int>(_currentVehicle.VehicleId);
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show($"Unable to open violation reporting: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            //}
+            try
+            {
+                _navigationService.NavigateTo<ViolationRecordWindow, Vehicle>(_currentVehicle);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unable to open violation reporting: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

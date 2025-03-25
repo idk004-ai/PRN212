@@ -374,6 +374,7 @@ namespace QuanLiKhiThai
 
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
+            WindowManager.CloseAllExcept(typeof(LogsMonitorWindow));
             _navigationService.NavigateTo<Login>();
             this.Close();
         }

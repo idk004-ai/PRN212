@@ -26,11 +26,13 @@ namespace QuanLiKhiThai
     {
         private readonly IUserDAO _userDAO;
         private readonly INavigationService _navigationService;
+        private readonly IStationInspectorDAO _stationInspectorDAO;
 
-        public Login(IUserDAO userDAO, INavigationService navigationService)
+        public Login(IUserDAO userDAO, INavigationService navigationService, IStationInspectorDAO stationInspectorDAO)
         {
             this._userDAO = userDAO;
             this._navigationService = navigationService;
+            this._stationInspectorDAO = stationInspectorDAO;
             InitializeComponent();
         }
 
@@ -48,6 +50,14 @@ namespace QuanLiKhiThai
                 return;
             }
 
+            if (!user.IsEnabled)
+            {
+                MessageBox.Show("Your account is not verified. Please check mail to verify account",
+                    "Unverified Account",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
 
             // Save user info to UserContext
             UserContext.Current.UserId = user.UserId;
@@ -66,11 +76,22 @@ namespace QuanLiKhiThai
                     this.Close();
                     break;
                 case Constants.Inspector:
+                    StationInspector? stationInspector = _stationInspectorDAO.GetByInspectorId(user.UserId);
+                    if (stationInspector == null)
+                    {
+                        MessageBox.Show("Inspector is not assigned to any station", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    if (stationInspector.IsActive == false)
+                    {
+                        MessageBox.Show("Inspector is disabled", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
                     _navigationService.NavigateTo<InspectorVehicleListWindow>();
                     this.Close();
                     break;
                 case Constants.Police:
-                    _navigationService.NavigateTo<PoliceHomeWindow>();
+                    _navigationService.NavigateTo<VehicleLookupWindow>();
                     this.Close();
                     break;
                 default:
@@ -82,6 +103,12 @@ namespace QuanLiKhiThai
         private void RegisterTextBlock_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             _navigationService.NavigateTo<MainWindow>();
+            this.Close();
+        }
+
+        private void VerifyAccount_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            _navigationService.NavigateTo<VerificationWindow>();
             this.Close();
         }
     }

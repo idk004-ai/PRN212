@@ -134,11 +134,11 @@ namespace QuanLiKhiThai
             var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
                 mainWindow.Show();
 
-            var logsManager = _serviceProvider.GetRequiredService<LogsViewManager>();
-            if (logsManager.AutoShowOnStartup)
-            {
-                logsManager.ShowLogsWindow(forceShow: true);
-            }
+            //var logsManager = _serviceProvider.GetRequiredService<LogsViewManager>();
+            //if (logsManager.AutoShowOnStartup)
+            //{
+            //    logsManager.ShowLogsWindow(forceShow: true);
+            //}
 
             // Initialize ExpirationService
             _expirationService = _serviceProvider.GetRequiredService<ExpirationService>();
@@ -147,8 +147,8 @@ namespace QuanLiKhiThai
 
         protected override void OnExit(ExitEventArgs e)
         {
-            var logsManager = _serviceProvider.GetRequiredService<LogsViewManager>();
-            logsManager.CloseLogsWindow();
+            //var logsManager = _serviceProvider.GetRequiredService<LogsViewManager>();
+            //logsManager.CloseLogsWindow();
 
             // Stop ExpirationService
             _expirationService?.Stop();

@@ -1,4 +1,5 @@
 ﻿
+
 CREATE TABLE Users (
     UserID INT PRIMARY KEY IDENTITY(1,1),
     FullName NVARCHAR(100) NOT NULL,
@@ -7,13 +8,11 @@ CREATE TABLE Users (
     Role NVARCHAR(20) NOT NULL,
     Phone NVARCHAR(15) NOT NULL,
     Address NVARCHAR(MAX) NOT NULL,
+	IsEnabled BIT NOT NULL DEFAULT 0,
+	VerificationToken NVARCHAR(255) NULL,
+    TokenExpiry DATETIME NULL,
     CONSTRAINT CHK_UserRole CHECK (Role IN ('Owner', 'Inspector', 'Station', 'Police'))
 );
-
-ALTER TABLE Users
-ADD IsEnabled BIT NOT NULL DEFAULT 0,
-	VerificationToken NVARCHAR(255) NULL,
-    TokenExpiry DATETIME NULL;
 
 CREATE TABLE Vehicles (
     VehicleID INT PRIMARY KEY IDENTITY(1,1),
@@ -23,11 +22,9 @@ CREATE TABLE Vehicles (
     Model NVARCHAR(50) NOT NULL,
     ManufactureYear INT NOT NULL,
     EngineNumber NVARCHAR(100) NOT NULL,
+	isDeleted BIT NOT NULL DEFAULT 0,
     CONSTRAINT FK_Vehicles_Users FOREIGN KEY (OwnerID) REFERENCES Users(UserID)
 );
-
-ALTER TABLE Vehicles
-ADD isDeleted BIT NOT NULL DEFAULT 0;
 
 CREATE TABLE InspectionAppointments (
 	AppointmentID INT PRIMARY KEY IDENTITY(1,1),

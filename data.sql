@@ -4,61 +4,60 @@
 --DBCC CHECKIDENT('Users', RESEED, 0)
 
 -- SQL script to insert dummy data into Users table(Owner role)
-INSERT INTO Users (FullName, Email, Password, Role, Phone, Address)
+INSERT INTO Users (FullName, Email, Password, Role, Phone, Address, IsEnabled, VerificationToken, TokenExpiry)
 VALUES 
-    ('John Smith', 'john.smith@example.com', 'hashed_password_123', 'Owner', '(555) 111-2222', '123 Oak Street, Apartment 4B, Springfield, IL 62701'),
-    ('Maria Rodriguez', 'maria.rodriguez@example.com', 'hashed_password_456', 'Owner', '(555) 222-3333', '456 Maple Avenue, Suite 200, Riverside, CA 92501'),
-    ('Ahmed Khan', 'ahmed.khan@example.com', 'hashed_password_789', 'Owner', '(555) 333-4444', '789 Pine Road, Unit 15, Lakeside, NY 10001'),
-    ('Sarah Johnson', 'sarah.johnson@example.com', 'hashed_password_abc', 'Owner', '(555) 444-5555', '101 Cedar Lane, Townhouse 7, Mountain View, CO 80201'),
-    ('Wei Zhang', 'wei.zhang@example.com', 'hashed_password_def', 'Owner', '(555) 555-6666', '202 Birch Boulevard, Floor 3, Oceanside, FL 33101'),
-    ('Emily Davis', 'emily.davis@example.com', 'hashed_password_ghi', 'Owner', '(555) 666-7777', '303 Redwood Drive, Building C, Westfield, TX 75001'),
-    ('Carlos Mendez', 'carlos.mendez@example.com', 'hashed_password_jkl', 'Owner', '(555) 777-8888', '404 Spruce Court, Unit 22A, Eastville, WA 98101'),
-    ('Aisha Patel', 'aisha.patel@example.com', 'hashed_password_mno', 'Owner', '(555) 888-9999', '505 Elm Street, House 10, Northtown, GA 30301'),
-    ('Robert Kim', 'robert.kim@example.com', 'hashed_password_pqr', 'Owner', '(555) 999-0000', '606 Willow Way, Apartment 5D, Southfield, MI 48075'),
-    ('Olivia Wilson', 'olivia.wilson@example.com', 'hashed_password_stu', 'Owner', '(555) 000-1111', '707 Aspen Avenue, Suite 305, Centreville, PA 19101');
+    ('John Smith', 'john.smith@example.com', 'hashed_password_123', 'Owner', '(555) 111-2222', '123 Oak Street, Apartment 4B, Springfield, IL 62701', 1, NULL, NULL),
+    ('Maria Rodriguez', 'maria.rodriguez@example.com', 'hashed_password_456', 'Owner', '(555) 222-3333', '456 Maple Avenue, Suite 200, Riverside, CA 92501', 1, NULL, NULL),
+    ('Ahmed Khan', 'ahmed.khan@example.com', 'hashed_password_789', 'Owner', '(555) 333-4444', '789 Pine Road, Unit 15, Lakeside, NY 10001', 1, NULL, NULL),
+    ('Sarah Johnson', 'sarah.johnson@example.com', 'hashed_password_abc', 'Owner', '(555) 444-5555', '101 Cedar Lane, Townhouse 7, Mountain View, CO 80201', 1, NULL, NULL),
+    ('Wei Zhang', 'wei.zhang@example.com', 'hashed_password_def', 'Owner', '(555) 555-6666', '202 Birch Boulevard, Floor 3, Oceanside, FL 33101', 1, NULL, NULL),
+    ('Emily Davis', 'emily.davis@example.com', 'hashed_password_ghi', 'Owner', '(555) 666-7777', '303 Redwood Drive, Building C, Westfield, TX 75001', 1, NULL, NULL),
+    ('Carlos Mendez', 'carlos.mendez@example.com', 'hashed_password_jkl', 'Owner', '(555) 777-8888', '404 Spruce Court, Unit 22A, Eastville, WA 98101', 1, NULL, NULL),
+    ('Aisha Patel', 'aisha.patel@example.com', 'hashed_password_mno', 'Owner', '(555) 888-9999', '505 Elm Street, House 10, Northtown, GA 30301', 1, NULL, NULL),
+    ('Robert Kim', 'robert.kim@example.com', 'hashed_password_pqr', 'Owner', '(555) 999-0000', '606 Willow Way, Apartment 5D, Southfield, MI 48075', 1, NULL, NULL),
+    ('Olivia Wilson', 'olivia.wilson@example.com', 'hashed_password_stu', 'Owner', '(555) 000-1111', '707 Aspen Avenue, Suite 305, Centreville, PA 19101', 1, NULL, NULL);
 
 -- SQL script to insert dummy data into Users table (Inspector role)
-INSERT INTO Users (FullName, Email, Password, Role, Phone, Address)
+INSERT INTO Users (FullName, Email, Password, Role, Phone, Address, IsEnabled, VerificationToken, TokenExpiry)
 VALUES 
-    ('Michael Thompson', 'michael.thompson@inspection.gov', 'hashed_password_insp1', 'Inspector', '(555) 123-4567', '123 Certification Lane, Suite 101, Inspection City, CA 94105'),
-    ('Jennifer Wilson', 'jennifer.wilson@inspection.gov', 'hashed_password_insp2', 'Inspector', '(555) 234-5678', '456 Validation Road, Floor 3, Standards Town, NY 10001'),
-    ('David Martinez', 'david.martinez@inspection.gov', 'hashed_password_insp3', 'Inspector', '(555) 345-6789', '789 Compliance Avenue, Unit B, Regulation City, TX 75001'),
-    ('Lisa Anderson', 'lisa.anderson@inspection.gov', 'hashed_password_insp4', 'Inspector', '(555) 456-7890', '101 Quality Control Street, Building 4, Safety Harbor, FL 33755'),
-    ('James Taylor', 'james.taylor@inspection.gov', 'hashed_password_insp5', 'Inspector', '(555) 567-8901', '202 Verification Drive, Suite 220, Assessment Village, IL 60601'),
-    ('Sophia Nguyen', 'sophia.nguyen@inspection.gov', 'hashed_password_insp6', 'Inspector', '(555) 678-9012', '303 Testing Blvd, Apartment 3C, Evaluation Heights, WA 98101'),
-    ('Robert Johnson', 'robert.johnson@inspection.gov', 'hashed_password_insp7', 'Inspector', '(555) 789-0123', '404 Audit Court, Office 505, Examination Park, CO 80202'),
-    ('Emma Garcia', 'emma.garcia@inspection.gov', 'hashed_password_insp8', 'Inspector', '(555) 890-1234', '505 Standard Street, Suite 15, Certification Springs, MI 48226'),
-    ('Daniel Lee', 'daniel.lee@inspection.gov', 'hashed_password_insp9', 'Inspector', '(555) 901-2345', '606 Protocol Place, Unit 7D, Compliance Falls, GA 30303'),
-    ('Olivia Brown', 'olivia.brown@inspection.gov', 'hashed_password_insp10', 'Inspector', '(555) 012-3456', '707 Regulation Road, Building A, Inspection Valley, PA 19103');
+    ('Michael Thompson', 'michael.thompson@inspection.gov', 'hashed_password_insp1', 'Inspector', '(555) 123-4567', '123 Certification Lane, Suite 101, Inspection City, CA 94105', 1, NULL, NULL),
+    ('Jennifer Wilson', 'jennifer.wilson@inspection.gov', 'hashed_password_insp2', 'Inspector', '(555) 234-5678', '456 Validation Road, Floor 3, Standards Town, NY 10001', 1, NULL, NULL),
+    ('David Martinez', 'david.martinez@inspection.gov', 'hashed_password_insp3', 'Inspector', '(555) 345-6789', '789 Compliance Avenue, Unit B, Regulation City, TX 75001', 1, NULL, NULL),
+    ('Lisa Anderson', 'lisa.anderson@inspection.gov', 'hashed_password_insp4', 'Inspector', '(555) 456-7890', '101 Quality Control Street, Building 4, Safety Harbor, FL 33755', 1, NULL, NULL),
+    ('James Taylor', 'james.taylor@inspection.gov', 'hashed_password_insp5', 'Inspector', '(555) 567-8901', '202 Verification Drive, Suite 220, Assessment Village, IL 60601', 1, NULL, NULL),
+    ('Sophia Nguyen', 'sophia.nguyen@inspection.gov', 'hashed_password_insp6', 'Inspector', '(555) 678-9012', '303 Testing Blvd, Apartment 3C, Evaluation Heights, WA 98101', 1, NULL, NULL),
+    ('Robert Johnson', 'robert.johnson@inspection.gov', 'hashed_password_insp7', 'Inspector', '(555) 789-0123', '404 Audit Court, Office 505, Examination Park, CO 80202', 1, NULL, NULL),
+    ('Emma Garcia', 'emma.garcia@inspection.gov', 'hashed_password_insp8', 'Inspector', '(555) 890-1234', '505 Standard Street, Suite 15, Certification Springs, MI 48226', 1, NULL, NULL),
+    ('Daniel Lee', 'daniel.lee@inspection.gov', 'hashed_password_insp9', 'Inspector', '(555) 901-2345', '606 Protocol Place, Unit 7D, Compliance Falls, GA 30303', 1, NULL, NULL),
+    ('Olivia Brown', 'olivia.brown@inspection.gov', 'hashed_password_insp10', 'Inspector', '(555) 012-3456', '707 Regulation Road, Building A, Inspection Valley, PA 19103', 1, NULL, NULL);
 
 -- SQL script to insert dummy data into Users table (Station role)
-INSERT INTO Users (FullName, Email, Password, Role, Phone, Address)
+INSERT INTO Users (FullName, Email, Password, Role, Phone, Address, IsEnabled, VerificationToken, TokenExpiry)
 VALUES 
-    ('Central Vehicle Inspection', 'info@centralinspection.com', 'hashed_password_station1', 'Station', '(555) 123-4567', '123 Main Street, Downtown, City Center 10001'),
-    ('Highway Safety Center', 'contact@highwaysafety.org', 'hashed_password_station2', 'Station', '(555) 234-5678', '456 Boulevard Ave, West District, Metro City 20002'),
-    ('Quality Auto Inspection', 'service@qualityauto.net', 'hashed_password_station3', 'Station', '(555) 345-6789', '789 Industrial Road, North Zone, Tech City 30003'),
-    ('Express Vehicle Check', 'appointments@expresscheck.com', 'hashed_password_station4', 'Station', '(555) 456-7890', '321 Fast Lane, East Side, Speed Town 40004'),
-    ('Reliable Inspection Services', 'info@reliableinspect.com', 'hashed_password_station5', 'Station', '(555) 567-8901', '654 Trust Street, South Quarter, Faith City 50005'),
-    ('Metro Vehicle Testing', 'support@metrotesting.org', 'hashed_password_station6', 'Station', '(555) 678-9012', '987 Urban Drive, Downtown, Capital City 60006'),
-    ('Countryside Inspection Station', 'hello@countrysideinspect.com', 'hashed_password_station7', 'Station', '(555) 789-0123', '246 Rural Route, Green Valley, Nature County 70007'),
-    ('TechSafe Inspection Center', 'service@techsafeinspect.net', 'hashed_password_station8', 'Station', '(555) 890-1234', '135 Innovation Park, Tech District, Future City 80008'),
-    ('Harbor Vehicle Inspection', 'appointments@harborinspect.com', 'hashed_password_station9', 'Station', '(555) 901-2345', '579 Port Road, Waterfront, Ocean City 90009'),
-    ('Mountain View Auto Check', 'info@mountainviewcheck.org', 'hashed_password_station10', 'Station', '(555) 012-3456', '864 Summit Way, Highland District, Peak Town 10010');
+    ('Central Vehicle Inspection', 'info@centralinspection.com', 'hashed_password_station1', 'Station', '(555) 123-4567', '123 Main Street, Downtown, City Center 10001', 1, NULL, NULL),
+    ('Highway Safety Center', 'contact@highwaysafety.org', 'hashed_password_station2', 'Station', '(555) 234-5678', '456 Boulevard Ave, West District, Metro City 20002', 1, NULL, NULL),
+    ('Quality Auto Inspection', 'service@qualityauto.net', 'hashed_password_station3', 'Station', '(555) 345-6789', '789 Industrial Road, North Zone, Tech City 30003', 1, NULL, NULL),
+    ('Express Vehicle Check', 'appointments@expresscheck.com', 'hashed_password_station4', 'Station', '(555) 456-7890', '321 Fast Lane, East Side, Speed Town 40004', 1, NULL, NULL),
+    ('Reliable Inspection Services', 'info@reliableinspect.com', 'hashed_password_station5', 'Station', '(555) 567-8901', '654 Trust Street, South Quarter, Faith City 50005', 1, NULL, NULL),
+    ('Metro Vehicle Testing', 'support@metrotesting.org', 'hashed_password_station6', 'Station', '(555) 678-9012', '987 Urban Drive, Downtown, Capital City 60006', 1, NULL, NULL),
+    ('Countryside Inspection Station', 'hello@countrysideinspect.com', 'hashed_password_station7', 'Station', '(555) 789-0123', '246 Rural Route, Green Valley, Nature County 70007', 1, NULL, NULL),
+    ('TechSafe Inspection Center', 'service@techsafeinspect.net', 'hashed_password_station8', 'Station', '(555) 890-1234', '135 Innovation Park, Tech District, Future City 80008', 1, NULL, NULL),
+    ('Harbor Vehicle Inspection', 'appointments@harborinspect.com', 'hashed_password_station9', 'Station', '(555) 901-2345', '579 Port Road, Waterfront, Ocean City 90009', 1, NULL, NULL),
+    ('Mountain View Auto Check', 'info@mountainviewcheck.org', 'hashed_password_station10', 'Station', '(555) 012-3456', '864 Summit Way, Highland District, Peak Town 10010', 1, NULL, NULL);
 
-	-- SQL script to insert dummy data into Users table (Police role)
-INSERT INTO Users (FullName, Email, Password, Role, Phone, Address)
+-- SQL script to insert dummy data into Users table (Police role)
+INSERT INTO Users (FullName, Email, Password, Role, Phone, Address, IsEnabled, VerificationToken, TokenExpiry)
 VALUES 
-    ('Thomas Reynolds', 'thomas.reynolds@police.gov', 'hashed_password_pol1', 'Police', '(555) 111-3333', '101 Enforcement Street, Unit 201, Justice City, NY 10005'),
-    ('Rebecca Chen', 'rebecca.chen@police.gov', 'hashed_password_pol2', 'Police', '(555) 222-4444', '202 Security Avenue, Apartment 3C, Safetown, CA 94103'),
-    ('Marcus Johnson', 'marcus.johnson@police.gov', 'hashed_password_pol3', 'Police', '(555) 333-5555', '303 Protection Road, Suite 105, Law City, TX 78701'),
-    ('Natasha Rodriguez', 'natasha.rodriguez@police.gov', 'hashed_password_pol4', 'Police', '(555) 444-6666', '404 Badge Boulevard, Building 7, Order Heights, FL 33101'),
-    ('Kevin Park', 'kevin.park@police.gov', 'hashed_password_pol5', 'Police', '(555) 555-7777', '505 Patrol Lane, Floor 2, Guardian Springs, WA 98104'),
-    ('Amelia Washington', 'amelia.washington@police.gov', 'hashed_password_pol6', 'Police', '(555) 666-8888', '606 Authority Drive, Suite 404, Officer Hills, IL 60611'),
-    ('Omar Hassan', 'omar.hassan@police.gov', 'hashed_password_pol7', 'Police', '(555) 777-9999', '707 Precinct Place, Unit 5B, Shield City, MI 48226'),
-    ('Priya Sharma', 'priya.sharma@police.gov', 'hashed_password_pol8', 'Police', '(555) 888-0000', '808 Duty Court, House 12, Service Town, CO 80202'),
-    ('Gabriel Santos', 'gabriel.santos@police.gov', 'hashed_password_pol9', 'Police', '(555) 999-1111', '909 Force Street, Apartment 6D, Command City, GA 30303'),
-    ('Zoe Williams', 'zoe.williams@police.gov', 'hashed_password_pol10', 'Police', '(555) 000-2222', '1010 Regulation Road, Office 303, Law Enforcement Valley, PA 19107');
-
+    ('Thomas Reynolds', 'thomas.reynolds@police.gov', 'hashed_password_pol1', 'Police', '(555) 111-3333', '101 Enforcement Street, Unit 201, Justice City, NY 10005', 1, NULL, NULL),
+    ('Rebecca Chen', 'rebecca.chen@police.gov', 'hashed_password_pol2', 'Police', '(555) 222-4444', '202 Security Avenue, Apartment 3C, Safetown, CA 94103', 1, NULL, NULL),
+    ('Marcus Johnson', 'marcus.johnson@police.gov', 'hashed_password_pol3', 'Police', '(555) 333-5555', '303 Protection Road, Suite 105, Law City, TX 78701', 1, NULL, NULL),
+    ('Natasha Rodriguez', 'natasha.rodriguez@police.gov', 'hashed_password_pol4', 'Police', '(555) 444-6666', '404 Badge Boulevard, Building 7, Order Heights, FL 33101', 1, NULL, NULL),
+    ('Kevin Park', 'kevin.park@police.gov', 'hashed_password_pol5', 'Police', '(555) 555-7777', '505 Patrol Lane, Floor 2, Guardian Springs, WA 98104', 1, NULL, NULL),
+    ('Amelia Washington', 'amelia.washington@police.gov', 'hashed_password_pol6', 'Police', '(555) 666-8888', '606 Authority Drive, Suite 404, Officer Hills, IL 60611', 1, NULL, NULL),
+    ('Omar Hassan', 'omar.hassan@police.gov', 'hashed_password_pol7', 'Police', '(555) 777-9999', '707 Precinct Place, Unit 5B, Shield City, MI 48226', 1, NULL, NULL),
+    ('Priya Sharma', 'priya.sharma@police.gov', 'hashed_password_pol8', 'Police', '(555) 888-0000', '808 Duty Court, House 12, Service Town, CO 80202', 1, NULL, NULL),
+    ('Gabriel Santos', 'gabriel.santos@police.gov', 'hashed_password_pol9', 'Police', '(555) 999-1111', '909 Force Street, Apartment 6D, Command City, GA 30303', 1, NULL, NULL),
+    ('Zoe Williams', 'zoe.williams@police.gov', 'hashed_password_pol10', 'Police', '(555) 000-2222', '1010 Regulation Road, Office 303, Law Enforcement Valley, PA 19107', 1, NULL, NULL);
 -- SQL script để gán Inspector cho các Station
 -- Giả định:
 -- - Users với role 'Inspector' có UserID từ 11-20
